@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>NEON SERPENT</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: #04050c;
+  }
+  body {
+    font-family: "Courier New", ui-monospace, monospace;
+    cursor: crosshair;
+    -webkit-user-select: none; user-select: none;
+  }
+  canvas { display: block; position: fixed; inset: 0; }
+
+  /* ---------- HUD ---------- */
+  #hud {
+    position: fixed; top: 0; left: 0;
+    padding: 20px 26px;
+    pointer-events: none;
+    color: #8ffcff;
+    text-shadow: 0 0 6px #00e5ff, 0 0 20px #0077ff;
+    letter-spacing: 3px;
+    z-index: 5;
+  }
+  #hud .row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  #hud .label { opacity: .5; font-size: 10px; letter-spacing: 3px; }
+  #hud .val {
+    font-size: 24px; font-weight: 700; color: #d8ffff;
+    text-shadow: 0 0 8px #00e5ff, 0 0 24px #00a2ff;
+    min-width: 90px;
+  }
+  #boostTag {
+    margin-top: 12px; font-size: 10px; letter-spacing: 2px;
+    color: #4fd8ff; opacity: .4;
+    transition: color .1s, opacity .1s, text-shadow .1s;
+  }
+  #boostTag.on {
+    opacity: 1; color: #fff3b0;
+    text-shadow: 0 0 10px #ffbb00, 0 0 26px #ff8800;
+  }
+  #ctrlTag {
+    margin-top: 7px; font-size: 10px; letter-spacing: 2px;
+    color: #4fd8ff; opacity: .32;
+  }
+
+  /* ---------- Shared overlay base ---------- */
+  .overlay {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease;
+    z-index: 10;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+
+  /* ---------- GAME OVER ---------- */
+  #over {
+    background: radial-gradient(circle at 50% 45%, rgba(30,0,60,.55), rgba(0,0,0,.88));
+  }
+  .panel {
+    text-align: center;
+    padding: 44px 58px;
+    border: 1px solid rgba(255,60,120,.55);
+    border-radius: 4px;
+    background: rgba(10,2,20,.72);
+    box-shadow:
+      0 0 24px rgba(255,40,110,.45),
+      inset 0 0 40px rgba(255,40,110,.10),
+      0 0 90px rgba(120,0,255,.25);
+    animation: pop .35s cubic-bezier(.2,1.4,.5,1);
+  }
+  @keyframes pop { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .panel h1 {
+    margin: 0 0 6px;
+    font-size: 34px; letter-spacing: 8px;
+    color: #ff5c8a;
+    text-shadow: 0 0 10px #ff0055, 0 0 34px #ff0055, 0 0 70px #b00040;
+  }
+  .panel .sub {
+    margin: 0 0 28px;
+    font-size: 11px; letter-spacing: 3px; color: #b98fd0; opacity: .85;
+  }
+  .scores { display: flex; gap: 46px; justify-content: center; margin-bottom: 32px; }
+  .scores > div { display: flex; flex-direction: column; gap: 6px; }
+  .scores span {
+    font-size: 38px; font-weight: 700; color: #eaffff;
+    text-shadow: 0 0 10px #00e5ff, 0 0 30px #0090ff;
+  }
+  .scores small { font-size: 9px; letter-spacing: 4px; color: #6ab8d8; }
+
+  .btn {
+    font-family: inherit;
+    font-size: 14px; letter-spacing: 5px; font-weight: 700;
+    padding: 14px 42px;
+    color: #04121a;
+    background: linear-gradient(180deg, #7ffcff, #00c8ff);
+    border: none; border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(0,220,255,.75), 0 0 50px rgba(0,150,255,.4);
+    transition: transform .1s, box-shadow .15s;
+    margin: 0 6px;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 26px rgba(0,240,255,1), 0 0 70px rgba(0,170,255,.6);
+  }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn.ghost {
+    background: transparent;
+    color: #7fdcff;
+    border: 1px solid rgba(127,220,255,.6);
+    box-shadow: 0 0 12px rgba(0,180,255,.25);
+  }
+  .btn.ghost:hover {
+    color: #eaffff;
+    border-color: #aef3ff;
+    box-shadow: 0 0 20px rgba(0,220,255,.6);
+  }
+
+  .hint { margin: 20px 0 0; font-size: 9px; letter-spacing: 3px; color: #6a5a80; }
+
+  /* ---------- START MENU ---------- */
+  #menu {
+    background: radial-gradient(circle at 50% 40%, rgba(20,0,55,.72), rgba(0,0,0,.92));
+    overflow-y: auto;
+  }
+  .menu-panel {
+    text-align: center;
+    padding: 34px 48px 40px;
+    border: 1px solid rgba(0,220,255,.4);
+    border-radius: 4px;
+    background: rgba(6,2,18,.80);
+    box-shadow:
+      0 0 26px rgba(0,180,255,.35),
+      inset 0 0 60px rgba(0,120,255,.08),
+      0 0 110px rgba(120,0,255,.30);
+    animation: pop .35s cubic-bezier(.2,1.4,.5,1);
+    max-width: 92vw;
+    max-height: 94vh;
+  }
+  .menu-panel h1 {
+    margin: 0 0 4px;
+    font-size: 40px; letter-spacing: 12px;
+    color: #eaffff;
+    text-shadow: 0 0 12px #00e5ff, 0 0 40px #0090ff, 0 0 80px #0055ff;
+  }
+  .menu-panel .tagline {
+    margin: 0 0 26px;
+    font-size: 10px; letter-spacing: 5px; color: #7fd8ff; opacity: .85;
+  }
+  .section-label {
+    font-size: 10px; letter-spacing: 4px; color: #8fd8ff; opacity: .6;
+    margin-bottom: 14px;
+  }
+  #skinGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 10px;
+    max-width: 620px;
+    margin: 0 auto 26px;
+  }
+  .skin-card {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px;
+    padding: 10px 6px 8px;
+    border: 1px solid rgba(0,180,255,.22);
+    border-radius: 3px;
+    background: rgba(4,10,22,.6);
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .1s;
+  }
+  .skin-card:hover {
+    border-color: rgba(0,220,255,.7);
+    box-shadow: 0 0 14px rgba(0,200,255,.4);
+  }
+  .skin-card.selected {
+    border-color: #ffd700;
+    box-shadow: 0 0 18px rgba(255,200,0,.55), inset 0 0 20px rgba(255,200,0,.10);
+    transform: translateY(-2px);
+  }
+  .skin-swatch {
+    width: 62px; height: 22px;
+    border-radius: 11px;
+    box-shadow: 0 0 12px currentColor;
+    position: relative;
+    overflow: hidden;
+  }
+  .skin-swatch::after {
+    content: '';
+    position: absolute; left: 6px; right: 6px; top: 50%;
+    height: 2px; margin-top: -1px;
+    background: rgba(255,255,255,.55);
+    border-radius: 1px;
+  }
+  .skin-card.secret .skin-swatch {
+    box-shadow: 0 0 16px currentColor, 0 0 32px rgba(255,215,0,.6);
+  }
+  .skin-card.secret {
+    animation: revealSecret .5s cubic-bezier(.2,1.5,.5,1);
+  }
+  @keyframes revealSecret {
+    from { transform: scale(.4) rotate(-20deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .skin-name {
+    font-size: 9px; letter-spacing: 2px;
+    color: #a8e4ff; text-transform: uppercase;
+  }
+  .skin-card.selected .skin-name { color: #ffe98a; }
+
+  .menu-controls {
+    margin: 22px 0 0;
+    font-size: 9px; letter-spacing: 2px; color: #5c7a9a;
+    line-height: 1.9;
+  }
+  .menu-secret-hint {
+    margin: 16px 0 0;
+    font-size: 8px; letter-spacing: 3px;
+    color: #3a4a5c;
+    opacity: .8;
+  }
+
+  /* ---------- PAUSE ---------- */
+  #pause {
+    background: radial-gradient(circle at 50% 50%, rgba(0,20,40,.55), rgba(0,0,0,.85));
+    backdrop-filter: blur(2px);
+  }
+  .pause-panel {
+    text-align: center;
+    padding: 38px 54px;
+    border: 1px solid rgba(0,220,255,.5);
+    border-radius: 4px;
+    background: rgba(4,10,22,.85);
+    box-shadow:
+      0 0 30px rgba(0,200,255,.4),
+      inset 0 0 40px rgba(0,150,255,.10);
+    animation: pop .3s cubic-bezier(.2,1.4,.5,1);
+  }
+  .pause-panel h2 {
+    margin: 0 0 24px;
+    font-size: 30px; letter-spacing: 12px;
+    color: #aef3ff;
+    text-shadow: 0 0 12px #00d8ff, 0 0 40px #0088ff;
+  }
+  .pause-panel .btn { display: block; width: 100%; margin: 8px 0; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div id="hud">
+  <div class="row"><span class="label">LENGTH</span><span class="val" id="hudLen">0</span></div>
+  <div class="row"><span class="label">PELLETS</span><span class="val" id="hudPel">0</span></div>
+  <div class="row"><span class="label">RIVALS</span><span class="val" id="hudRivals">0</span></div>
+  <div id="boostTag">BOOST ▸ SPACE / RIGHT-CLICK</div>
+  <div id="ctrlTag">MOVE ▸ MOUSE OR ARROW KEYS</div>
+</div>
+
+<!-- ---------- START MENU ---------- -->
+<div id="menu" class="overlay show">
+  <div class="menu-panel">
+    <h1>NEON SERPENT</h1>
+    <p class="tagline">SLITHER · GROW · SURVIVE</p>
+    <p class="section-label">SELECT YOUR SERPENT</p>
+    <div id="skinGrid"></div>
+    <button class="btn" id="playBtn">PLAY</button>
+    <p class="menu-controls">
+      MOVE ▸ MOUSE OR ARROW KEYS · BOOST ▸ SPACE / RIGHT-CLICK<br>
+      PAUSE ▸ ESC
+    </p>
+    <p class="menu-secret-hint">PRESS S</p>
+  </div>
+</div>
+
+<!-- ---------- PAUSE ---------- -->
+<div id="pause" class="overlay">
+  <div class="pause-panel">
+    <h2>PAUSED</h2>
+    <button class="btn" id="resumeBtn">RESUME</button>
+    <button class="btn ghost" id="pauseRestartBtn">RESTART</button>
+    <button class="btn ghost" id="pauseMenuBtn">MAIN MENU</button>
+  </div>
+</div>
+
+<!-- ---------- GAME OVER ---------- -->
+<div id="over" class="overlay">
+  <div class="panel">
+    <h1>SYSTEM FAILURE</h1>
+    <p class="sub">YOUR SERPENT HAS BEEN FRAGMENTED</p>
+    <div class="scores">
+      <div><span id="finalLen">0</span><small>LENGTH</small></div>
+      <div><span id="finalPel">0</span><small>PELLETS</small></div>
+    </div>
+    <button class="btn" id="restartBtn">RESTART</button>
+    <button class="btn ghost" id="overMenuBtn">MENU</button>
+    <p class="hint">PRESS SPACE OR R TO RESTART · ESC FOR MENU</p>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* =====================================================================
+   SETUP
+   ===================================================================== */
+const canvas = document.getElementById('cv');
+const ctx = canvas.getContext('2d', { alpha: false });
+const hudLenEl    = document.getElementById('hudLen');
+const hudPelEl    = document.getElementById('hudPel');
+const hudRivalsEl = document.getElementById('hudRivals');
+const boostTagEl  = document.getElementById('boostTag');
+const overEl      = document.getElementById('over');
+const menuEl      = document.getElementById('menu');
+const pauseEl     = document.getElementById('pause');
+const skinGridEl  = document.getElementById('skinGrid');
+const finalLenEl  = document.getElementById('finalLen');
+const finalPelEl  = document.getElementById('finalPel');
+
+let W = 0, H = 0, DPR = 1;
+let vignette = null;
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const g = ctx.createRadialGradient(W/2, H/2, Math.min(W,H) * 0.22,
+                                     W/2, H/2, Math.max(W,H) * 0.75);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(0.6, 'rgba(2,0,10,0.35)');
+  g.addColorStop(1, 'rgba(0,0,0,0.85)');
+  vignette = g;
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const TAU = Math.PI * 2;
+const rand  = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+function angDiff(a, b) {
+  let d = a - b;
+  while (d >  Math.PI) d -= TAU;
+  while (d < -Math.PI) d += TAU;
+  return d;
+}
+
+/* =====================================================================
+   SKINS
+   ===================================================================== */
+const SKINS = {
+  circuit: {
+    name: 'Circuit',
+    hue: 188,
+    glow: '#00e5ff',
+    glowSoft: 'rgba(0,229,255,0.50)',
+    c0: '#0b2e3a', c1: '#00c8ff', c2: '#0060ff',
+    core: 'rgba(235,255,255,0.92)',
+    coreWidth: 0.46,
+    pattern: 'circuit',
+    patternColor: 'rgba(190,255,255,0.9)',
+    patternStep: 2.4,
+    head: '#eaffff',
+    headGlow: '#00e5ff'
+  },
+
+  /* ---------- ISRAEL (hidden until 'S' pressed) ---------- */
+  israel: {
+    name: 'Israel',
+    hue: 220,
+    glow: '#ffd700',
+    glowSoft: 'rgba(255,215,0,0.55)',
+    /* Pure white body with subtle cool shading */
+    c0: '#ffffff', c1: '#f6faff', c2: '#e6eef8',
+    /* Blue center core */
+    core: 'rgba(0,60,180,0.30)',
+    coreWidth: 0.42,
+    /* Side stripes running along the body */
+    stripe: {
+      offset: 0.62,       // in units of radius
+      width: 0.30,        // in units of radius
+      color: 'rgba(0,60,180,0.95)'
+    },
+    /* Star of David marks along the center */
+    pattern: 'israel',
+    patternColor: 'rgba(0,60,180,0.98)',
+    patternStep: 4.0,
+    head: '#ffffff',
+    headGlow: '#ffd700',
+    aura: 'gold',
+    secret: true,
+    swatch: 'linear-gradient(180deg, #003cb4 0%, #003cb4 18%, #ffffff 18%, #ffffff 82%, #003cb4 82%, #003cb4 100%)'
+  },
+
+  viper: {
+    name: 'Viper',
+    hue: 130,
+    glow: '#3dff7a',
+    glowSoft: 'rgba(61,255,122,0.45)',
+    c0: '#062b12', c1: '#2fd45e', c2: '#0a6b2a',
+    core: 'rgba(220,255,225,0.72)',
+    coreWidth: 0.38,
+    pattern: 'chevron',
+    patternColor: 'rgba(4,22,9,0.85)',
+    patternStep: 2.2,
+    head: '#d8ffe4',
+    headGlow: '#3dff7a'
+  },
+  ember: {
+    name: 'Ember',
+    hue: 22,
+    glow: '#ff8a2b',
+    glowSoft: 'rgba(255,138,43,0.45)',
+    c0: '#3a0d02', c1: '#ff7a18', c2: '#c2140a',
+    core: 'rgba(255,235,190,0.78)',
+    coreWidth: 0.38,
+    pattern: 'band',
+    patternColor: 'rgba(28,4,0,0.72)',
+    patternStep: 2.0,
+    head: '#ffd9a8',
+    headGlow: '#ff8a2b'
+  },
+  amethyst: {
+    name: 'Amethyst',
+    hue: 285,
+    glow: '#c46bff',
+    glowSoft: 'rgba(196,107,255,0.45)',
+    c0: '#210636', c1: '#a24dff', c2: '#ff4fd8',
+    core: 'rgba(250,230,255,0.80)',
+    coreWidth: 0.40,
+    pattern: 'diamond',
+    patternColor: 'rgba(255,222,255,0.58)',
+    patternStep: 2.6,
+    head: '#f0d8ff',
+    headGlow: '#c46bff'
+  },
+  frost: {
+    name: 'Frost',
+    hue: 200,
+    glow: '#8fd8ff',
+    glowSoft: 'rgba(143,216,255,0.45)',
+    c0: '#0b2334', c1: '#a8e4ff', c2: '#4a86c8',
+    core: 'rgba(255,255,255,0.90)',
+    coreWidth: 0.42,
+    pattern: 'dot',
+    patternColor: 'rgba(255,255,255,0.78)',
+    patternStep: 2.4,
+    head: '#ffffff',
+    headGlow: '#8fd8ff'
+  },
+  toxic: {
+    name: 'Toxic',
+    hue: 75,
+    glow: '#c8ff2b',
+    glowSoft: 'rgba(200,255,43,0.42)',
+    c0: '#1e2a03', c1: '#b4e81a', c2: '#3d7a06',
+    core: 'rgba(240,255,200,0.70)',
+    coreWidth: 0.36,
+    pattern: 'rib',
+    patternColor: 'rgba(18,26,0,0.72)',
+    patternStep: 1.6,
+    head: '#eaffb0',
+    headGlow: '#c8ff2b'
+  },
+  void: {
+    name: 'Void',
+    hue: 265,
+    glow: '#7a3cff',
+    glowSoft: 'rgba(122,60,255,0.50)',
+    c0: '#05030f', c1: '#3a1a7a', c2: '#0a0518',
+    core: 'rgba(180,150,255,0.85)',
+    coreWidth: 0.34,
+    pattern: 'star',
+    patternColor: 'rgba(205,185,255,0.95)',
+    patternStep: 3.0,
+    head: '#cbb4ff',
+    headGlow: '#7a3cff'
+  },
+  solar: {
+    name: 'Solar',
+    hue: 48,
+    glow: '#ffd23c',
+    glowSoft: 'rgba(255,210,60,0.45)',
+    c0: '#3a2600', c1: '#ffc21a', c2: '#ff7a00',
+    core: 'rgba(255,250,210,0.92)',
+    coreWidth: 0.44,
+    pattern: 'ray',
+    patternColor: 'rgba(80,40,0,0.55)',
+    patternStep: 2.2,
+    head: '#fff3c4',
+    headGlow: '#ffd23c'
+  },
+  rose: {
+    name: 'Rose',
+    hue: 335,
+    glow: '#ff5c9e',
+    glowSoft: 'rgba(255,92,158,0.45)',
+    c0: '#33061c', c1: '#ff4f9e', c2: '#b81260',
+    core: 'rgba(255,225,240,0.85)',
+    coreWidth: 0.42,
+    pattern: 'dot',
+    patternColor: 'rgba(255,255,255,0.62)',
+    patternStep: 2.8,
+    head: '#ffd6e8',
+    headGlow: '#ff5c9e'
+  },
+  cobalt: {
+    name: 'Cobalt',
+    hue: 222,
+    glow: '#4f8cff',
+    glowSoft: 'rgba(79,140,255,0.45)',
+    c0: '#050f2e', c1: '#2f6cff', c2: '#0a2a8a',
+    core: 'rgba(220,235,255,0.86)',
+    coreWidth: 0.50,
+    pattern: 'rib',
+    patternColor: 'rgba(200,225,255,0.35)',
+    patternStep: 2.2,
+    head: '#cfe0ff',
+    headGlow: '#4f8cff'
+  }
+};
+
+const AI_SKIN_KEYS = ['viper','ember','amethyst','frost','toxic','void','solar','rose','cobalt'];
+/* Israel is NOT here by default — it is unlocked by pressing 'S' in the menu */
+const BASE_SELECTABLE = ['circuit','viper','ember','amethyst','frost','toxic','void','solar','rose','cobalt'];
+let SELECTABLE_SKINS = BASE_SELECTABLE.slice();
+let israelUnlocked = false;
+
+let selectedSkinKey = 'circuit';
+
+/* =====================================================================
+   TUNING
+   ===================================================================== */
+const MAX_AI        = 18;
+const AI_HARD_CAP   = 22;
+const NEARBY_R      = 1300;
+const NEARBY_R2     = NEARBY_R * NEARBY_R;
+const MIN_NEARBY    = 3;
+const PELLET_TARGET = 520;
+
+const SNAKE_RADIUS   = 13;
+const SNAKE_SPACING  = 8;
+const PLAYER_SPEED   = 150;
+const AI_SPEED       = 122;
+const PLAYER_TURN    = 6.6;
+const AI_TURN        = 3.7;
+const BOOST_MULT     = 1.9;
+const BOOST_SHRINK_DT = 0.08;
+const EAT_PAD        = 6;
+const BOOST_TURN_PENALTY = 0.90;
+
+const AI_VISION_BASE  = 120;
+const AI_VISION_SKILL = 130;
+const AI_FRONT_CONE   = 1.95;
+const AI_REACT_MIN    = 0.14;
+const AI_REACT_MAX    = 0.42;
+const AI_BOOST_CHANCE = 0.18;
+
+let cam = { x: 0, y: 0 };
+let zoom = 1, zoomTarget = 1;
+
+let mouse = { sx: 0, sy: 0, wx: 0, wy: 0 };
+let keys = {};
+let mouseRight = false;
+let boosting = false;
+let boostAcc = 0;
+
+let player = null;
+let ais = [];
+let pellets = [];
+let particles = [];
+let snakes = [];
+let respawnQueue = [];
+
+let gameState = 'menu';
+let gameOver = false;
+let deathTimer = -1;
+let pelletsEaten = 0;
+let shake = 0;
+let gameTime = 0;
+
+let nextId = 0;
+
+/* =====================================================================
+   PATH UTILITIES
+   ===================================================================== */
+function pathLength(pts) {
+  let L = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const dx = pts[i].x - pts[i - 1].x;
+    const dy = pts[i].y - pts[i - 1].y;
+    L += Math.hypot(dx, dy);
+  }
+  return L;
+}
+
+function walkPath(pts, step, cb) {
+  let carry = step * 0.5;
+  let arc = 0;
+  let idx = 0;
+  const n = pts.length;
+  for (let i = 1; i < n; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const seg = Math.hypot(dx, dy);
+    if (seg < 0.0001) continue;
+    const ux = dx / seg, uy = dy / seg;
+    const ang = Math.atan2(uy, ux);
+    let d = carry;
+    while (d < seg) {
+      cb(a.x + ux * d, a.y + uy * d, ang, arc + d, idx++);
+      d += step;
+    }
+    carry = d - seg;
+    arc += seg;
+  }
+}
+
+/* Draw an offset version of a snake path (used for flag stripes) */
+function strokeOffsetPath(pts, offset, color, width) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  const n = pts.length;
+  for (let i = 0; i < n; i++) {
+    let tx, ty;
+    if (i === 0) {
+      tx = pts[1].x - pts[0].x;
+      ty = pts[1].y - pts[0].y;
+    } else if (i === n - 1) {
+      tx = pts[i].x - pts[i - 1].x;
+      ty = pts[i].y - pts[i - 1].y;
+    } else {
+      tx = pts[i + 1].x - pts[i - 1].x;
+      ty = pts[i + 1].y - pts[i - 1].y;
+    }
+    const len = Math.hypot(tx, ty) || 1;
+    const nx = -ty / len;
+    const ny =  tx / len;
+    const x = pts[i].x + nx * offset;
+    const y = pts[i].y + ny * offset;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+/* =====================================================================
+   SNAKE
+   ===================================================================== */
+function makeSnake(x, y, angle, skinKey, isPlayer) {
+  const skin = SKINS[skinKey] || SKINS.circuit;
+  const s = {
+    id: nextId++,
+    x, y, angle, isPlayer,
+    skin: skin,
+    hue: skin.hue,
+    skinPhase: Math.random() * TAU,
+    points: [],
+    radius: SNAKE_RADIUS,
+    spacing: SNAKE_SPACING,
+    grow: 0,
+    boosting: false,
+    alive: true,
+    turnRate: isPlayer ? PLAYER_TURN : AI_TURN,
+    baseSpeed: isPlayer ? PLAYER_SPEED : AI_SPEED,
+    bx: x, by: y, br: 120,
+    skill: isPlayer ? 1 : rand(0.40, 0.85),
+    aiPlanT: 0,
+    aiTargetAng: angle,
+    wander: angle,
+    wanderT: rand(0.5, 2),
+    boostT: rand(3, 8),
+    willBoost: false,
+    shrinkAcc: 0
+  };
+  const n = isPlayer ? 30 : Math.floor(rand(22, 56));
+  for (let i = 0; i < n; i++) {
+    s.points.push({
+      x: x - Math.cos(angle) * i * s.spacing,
+      y: y - Math.sin(angle) * i * s.spacing
+    });
+  }
+  return s;
+}
+
+function addSegment(s) {
+  const pts = s.points;
+  const n = pts.length;
+  if (n < 2) return;
+  const a = pts[n - 1], b = pts[n - 2];
+  let dx = a.x - b.x, dy = a.y - b.y;
+  const d = Math.hypot(dx, dy) || 1;
+  pts.push({ x: a.x + dx / d * s.spacing, y: a.y + dy / d * s.spacing });
+}
+
+function moveSnake(s, dt) {
+  const spd = s.baseSpeed * (s.boosting ? BOOST_MULT : 1);
+  s.x += Math.cos(s.angle) * spd * dt;
+  s.y += Math.sin(s.angle) * spd * dt;
+
+  const pts = s.points;
+  pts[0].x = s.x;
+  pts[0].y = s.y;
+
+  const sp = s.spacing, sp2 = sp * sp;
+  for (let i = 1; i < pts.length; i++) {
+    const p = pts[i], q = pts[i - 1];
+    const dx = q.x - p.x, dy = q.y - p.y;
+    const d2 = dx * dx + dy * dy;
+    if (d2 > sp2) {
+      const d = Math.sqrt(d2);
+      const t = (d - sp) / d;
+      p.x += dx * t;
+      p.y += dy * t;
+    }
+  }
+}
+
+function computeBounds(s) {
+  const pts = s.points, n = pts.length;
+  let sx = 0, sy = 0, c = 0;
+  for (let i = 0; i < n; i += 4) { sx += pts[i].x; sy += pts[i].y; c++; }
+  const cx = sx / c, cy = sy / c;
+  let maxR = 0;
+  for (let i = 0; i < n; i += 4) {
+    const dx = pts[i].x - cx, dy = pts[i].y - cy;
+    const d = dx * dx + dy * dy;
+    if (d > maxR) maxR = d;
+  }
+  s.bx = cx; s.by = cy; s.br = Math.sqrt(maxR);
+}
+
+/* =====================================================================
+   PELLETS / PARTICLES
+   ===================================================================== */
+function makePellet(x, y, hue, value, vx, vy, r) {
+  return {
+    x, y, vx: vx || 0, vy: vy || 0,
+    hue, value, r: r || 3.6,
+    phase: Math.random() * TAU,
+    big: value >= 2
+  };
+}
+
+function spawnAmbientPellet() {
+  const a = Math.random() * TAU;
+  const d = rand(280, 1500);
+  const hues = [48, 175, 300, 200, 110];
+  const hue = hues[(Math.random() * hues.length) | 0];
+  pellets.push(makePellet(
+    player.x + Math.cos(a) * d,
+    player.y + Math.sin(a) * d,
+    hue, 1
+  ));
+}
+
+function addBurst(x, y, hue, count) {
+  if (particles.length > 600) return;
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * TAU;
+    const sp = rand(30, 190);
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+      life: rand(0.3, 0.75), maxLife: 0.75,
+      hue, r: rand(1.4, 3.4)
+    });
+  }
+}
+
+/* =====================================================================
+   AI
+   ===================================================================== */
+function updateAI(s, dt) {
+  const head = s.points[0];
+
+  s.aiPlanT -= dt;
+  if (s.aiPlanT > 0) {
+    const d = angDiff(s.aiTargetAng, s.angle);
+    const maxT = s.turnRate * dt * (s.boosting ? BOOST_TURN_PENALTY : 1);
+    s.angle += clamp(d, -maxT, maxT);
+    return;
+  }
+  s.aiPlanT = AI_REACT_MIN + (1 - s.skill) * (AI_REACT_MAX - AI_REACT_MIN);
+
+  const visR = AI_VISION_BASE + s.skill * AI_VISION_SKILL;
+  const visR2 = visR * visR;
+  let threatAng = null;
+  let threatD2  = Infinity;
+
+  for (let i = 0; i < snakes.length; i++) {
+    const o = snakes[i];
+    if (o === s || !o.alive) continue;
+
+    const bdx = o.bx - head.x, bdy = o.by - head.y;
+    const reach = o.br + visR;
+    if (bdx * bdx + bdy * bdy > reach * reach) continue;
+
+    const pts = o.points;
+    for (let j = 0; j < pts.length; j += 3) {
+      const dx = pts[j].x - head.x;
+      const dy = pts[j].y - head.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 > visR2) continue;
+
+      const a = Math.atan2(dy, dx);
+      if (Math.abs(angDiff(a, s.angle)) > AI_FRONT_CONE) continue;
+
+      if (d2 < threatD2) { threatD2 = d2; threatAng = a; }
+    }
+  }
+
+  let target;
+  const sees = threatAng !== null && Math.random() < s.skill * 0.85;
+
+  if (sees) {
+    const panic = Math.random() > s.skill;
+    if (panic) {
+      target = threatAng + Math.PI;
+    } else {
+      const left  = threatAng + Math.PI * 0.5;
+      const right = threatAng - Math.PI * 0.5;
+      const dl = Math.abs(angDiff(left,  s.angle));
+      const dr = Math.abs(angDiff(right, s.angle));
+      target = (dl < dr) ? left : right;
+    }
+  } else {
+    let tx = head.x + Math.cos(s.wander) * 420;
+    let ty = head.y + Math.sin(s.wander) * 420;
+    let bestD2 = 500 * 500;
+    for (let i = 0; i < pellets.length; i += 2) {
+      const p = pellets[i];
+      const dx = p.x - head.x, dy = p.y - head.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < bestD2) { bestD2 = d2; tx = p.x; ty = p.y; }
+    }
+    target = Math.atan2(ty - head.y, tx - head.x);
+
+    s.wanderT -= s.aiPlanT;
+    if (s.wanderT <= 0) {
+      s.wanderT = rand(1.2, 3.2);
+      s.wander += rand(-1.2, 1.2);
+    }
+    target += (Math.random() - 0.5) * 0.30 * (1 - s.skill);
+  }
+
+  s.aiTargetAng = target;
+
+  const d = angDiff(target, s.angle);
+  const maxT = s.turnRate * dt * (s.boosting ? BOOST_TURN_PENALTY : 1);
+  s.angle += clamp(d, -maxT, maxT);
+
+  s.boostT -= s.aiPlanT;
+  if (s.boostT <= 0) {
+    s.boostT = rand(3, 9);
+    s.willBoost = Math.random() < AI_BOOST_CHANCE && s.points.length > 60;
+  }
+  s.boosting = s.willBoost;
+}
+
+function spawnAI(nearPlayer) {
+  const ang = Math.random() * TAU;
+  const dist = nearPlayer
+    ? rand(550, NEARBY_R * 0.85)
+    : rand(500, 1500);
+
+  const x = (player ? player.x : 0) + Math.cos(ang) * dist;
+  const y = (player ? player.y : 0) + Math.sin(ang) * dist;
+  const key = AI_SKIN_KEYS[(Math.random() * AI_SKIN_KEYS.length) | 0];
+  ais.push(makeSnake(x, y, Math.random() * TAU, key, false));
+}
+
+function countNearbyAI() {
+  let c = 0;
+  for (let i = 0; i < ais.length; i++) {
+    const a = ais[i];
+    if (!a.alive) continue;
+    const dx = a.x - player.x, dy = a.y - player.y;
+    if (dx * dx + dy * dy < NEARBY_R2) c++;
+  }
+  return c;
+}
+
+function enforceNearbyAI() {
+  if (gameOver) return;
+  const total = ais.length + respawnQueue.length;
+  if (total >= AI_HARD_CAP) return;
+  const near = countNearbyAI();
+  if (near >= MIN_NEARBY) return;
+  if (respawnQueue.length < 6) {
+    respawnQueue.push(rand(0.35, 0.85));
+  }
+}
+
+/* =====================================================================
+   DEATH
+   ===================================================================== */
+function killAI(a) {
+  if (!a.alive) return;
+  a.alive = false;
+
+  const pts = a.points;
+  for (let i = 0; i < pts.length; i += 2) {
+    const p = pts[i];
+    const ang = Math.random() * TAU;
+    const sp = rand(50, 240);
+    pellets.push(makePellet(
+      p.x, p.y, a.hue, 2,
+      Math.cos(ang) * sp, Math.sin(ang) * sp,
+      5.2
+    ));
+  }
+  addBurst(pts[0].x, pts[0].y, a.hue, 34);
+
+  const idx = ais.indexOf(a);
+  if (idx >= 0) ais.splice(idx, 1);
+
+  if (!gameOver) respawnQueue.push(rand(1.0, 2.2));
+}
+
+function killPlayer() {
+  if (gameOver) return;
+  gameOver = true;
+  gameState = 'gameover';
+  player.alive = false;
+  player.boosting = false;
+  shake = 1.3;
+  deathTimer = 0.85;
+
+  const pts = player.points;
+  for (let i = 0; i < pts.length; i += 2) {
+    const p = pts[i];
+    const ang = Math.random() * TAU;
+    const sp = rand(70, 340);
+    pellets.push(makePellet(
+      p.x, p.y, 48, 4,
+      Math.cos(ang) * sp, Math.sin(ang) * sp,
+      6.4
+    ));
+  }
+  addBurst(player.x, player.y, 48, 70);
+
+  finalLenEl.textContent = pts.length;
+  finalPelEl.textContent = pelletsEaten;
+}
+
+/* =====================================================================
+   COLLISIONS
+   ===================================================================== */
+function checkCollisions() {
+  if (gameOver) return;
+
+  const head = player.points[0];
+  const pr = player.radius;
+
+  for (let i = 0; i < ais.length; i++) {
+    const o = ais[i];
+    if (!o.alive) continue;
+    const bdx = o.bx - head.x, bdy = o.by - head.y;
+    const rr = o.br + pr + 30;
+    if (bdx * bdx + bdy * bdy > rr * rr) continue;
+
+    const pts = o.points;
+    const rad = pr + o.radius * 0.85;
+    const rad2 = rad * rad;
+    for (let j = 0; j < pts.length; j++) {
+      const dx = pts[j].x - head.x, dy = pts[j].y - head.y;
+      if (dx * dx + dy * dy < rad2) { killPlayer(); return; }
+    }
+  }
+
+  const killed = new Set();
+
+  for (let i = 0; i < ais.length; i++) {
+    const a = ais[i];
+    if (!a.alive || killed.has(a)) continue;
+    const ah = a.points[0];
+    const ar = a.radius;
+
+    for (let k = 0; k < snakes.length; k++) {
+      const o = snakes[k];
+      if (o === a || !o.alive) continue;
+
+      const bdx = o.bx - ah.x, bdy = o.by - ah.y;
+      const rr = o.br + ar + 30;
+      if (bdx * bdx + bdy * bdy > rr * rr) continue;
+
+      const pts = o.points;
+      const rad = ar + o.radius * 0.85;
+      const rad2 = rad * rad;
+      for (let j = 0; j < pts.length; j++) {
+        const dx = pts[j].x - ah.x, dy = pts[j].y - ah.y;
+        if (dx * dx + dy * dy < rad2) { killed.add(a); break; }
+      }
+      if (killed.has(a)) break;
+    }
+  }
+
+  for (let i = 0; i < ais.length; i++) {
+    const a = ais[i];
+    if (!a.alive || killed.has(a)) continue;
+    for (let j = i + 1; j < ais.length; j++) {
+      const b = ais[j];
+      if (!b.alive || killed.has(b)) continue;
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const rr = a.radius + b.radius;
+      if (dx * dx + dy * dy < rr * rr) {
+        killed.add(a);
+        killed.add(b);
+      }
+    }
+  }
+
+  killed.forEach(k => killAI(k));
+}
+
+/* =====================================================================
+   UPDATE
+   ===================================================================== */
+function updatePellets(dt) {
+  const damp = Math.pow(0.86, dt * 60);
+  const pr = player.radius;
+
+  for (let i = pellets.length - 1; i >= 0; i--) {
+    const p = pellets[i];
+
+    if (p.vx !== 0 || p.vy !== 0) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= damp;
+      p.vy *= damp;
+      if (Math.abs(p.vx) < 3) p.vx = 0;
+      if (Math.abs(p.vy) < 3) p.vy = 0;
+    }
+    p.phase += dt * 5;
+
+    const dxp = p.x - player.x, dyp = p.y - player.y;
+    const d2p = dxp * dxp + dyp * dyp;
+
+    if (d2p > 2600 * 2600) {
+      pellets[i] = pellets[pellets.length - 1];
+      pellets.pop();
+      continue;
+    }
+
+    let eaten = false;
+
+    if (player.alive) {
+      const rr = pr + p.r + EAT_PAD;
+      if (d2p < rr * rr) {
+        player.grow += p.value;
+        pelletsEaten++;
+        addBurst(p.x, p.y, p.hue, 4);
+        eaten = true;
+      }
+    }
+
+    if (!eaten) {
+      for (let k = 0; k < ais.length; k++) {
+        const a = ais[k];
+        if (!a.alive) continue;
+        const dx = p.x - a.x, dy = p.y - a.y;
+        const rr = a.radius + p.r + EAT_PAD;
+        if (dx * dx + dy * dy < rr * rr) {
+          a.grow += p.value * 0.9;
+          addBurst(p.x, p.y, p.hue, 3);
+          eaten = true;
+          break;
+        }
+      }
+    }
+
+    if (eaten) {
+      pellets[i] = pellets[pellets.length - 1];
+      pellets.pop();
+    }
+  }
+
+  for (let i = 0; i < snakes.length; i++) {
+    const s = snakes[i];
+    if (!s.alive || s.grow < 1) continue;
+    const add = Math.floor(s.grow);
+    s.grow -= add;
+    const cap = s.isPlayer ? 620 : 320;
+    for (let j = 0; j < add && s.points.length < cap; j++) addSegment(s);
+  }
+
+  let guard = 0;
+  while (pellets.length < PELLET_TARGET && guard++ < 60) spawnAmbientPellet();
+}
+
+function updateParticles(dt) {
+  const damp = Math.pow(0.9, dt * 60);
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vx *= damp;
+    p.vy *= damp;
+    p.life -= dt;
+    if (p.life <= 0) {
+      particles[i] = particles[particles.length - 1];
+      particles.pop();
+    }
+  }
+}
+
+function update(dt) {
+  if (gameState === 'paused' || gameState === 'menu') return;
+
+  gameTime += dt;
+  if (shake > 0) shake = Math.max(0, shake - dt * 2.2);
+
+  if (deathTimer > 0) {
+    deathTimer -= dt;
+    if (deathTimer <= 0) overEl.classList.add('show');
+  }
+
+  for (let i = respawnQueue.length - 1; i >= 0; i--) {
+    respawnQueue[i] -= dt;
+    if (respawnQueue[i] <= 0) {
+      respawnQueue.splice(i, 1);
+      spawnAI(false);
+    }
+  }
+
+  while (ais.length + respawnQueue.length < MAX_AI) {
+    respawnQueue.push(rand(1.0, 2.4));
+  }
+
+  enforceNearbyAI();
+
+  snakes.length = 0;
+  snakes.push(player);
+  for (let i = 0; i < ais.length; i++) if (ais[i].alive) snakes.push(ais[i]);
+
+  for (let i = 0; i < snakes.length; i++) computeBounds(snakes[i]);
+
+  /* ---------- PLAYER ---------- */
+  if (!gameOver) {
+    mouse.wx = cam.x + (mouse.sx - W / 2) / zoom;
+    mouse.wy = cam.y + (mouse.sy - H / 2) / zoom;
+
+    let desired = null;
+
+    let ax = 0, ay = 0;
+    if (keys['ArrowLeft'])  ax -= 1;
+    if (keys['ArrowRight']) ax += 1;
+    if (keys['ArrowUp'])    ay -= 1;
+    if (keys['ArrowDown'])  ay += 1;
+
+    if (ax !== 0 || ay !== 0) {
+      desired = Math.atan2(ay, ax);
+    } else {
+      const mdx = mouse.wx - player.x;
+      const mdy = mouse.wy - player.y;
+      if (mdx * mdx + mdy * mdy > 64) desired = Math.atan2(mdy, mdx);
+    }
+
+    if (desired !== null) {
+      const d = angDiff(desired, player.angle);
+      const maxT = player.turnRate * dt * (player.boosting ? BOOST_TURN_PENALTY : 1);
+      player.angle += clamp(d, -maxT, maxT);
+    }
+
+    const wantBoost = (keys['Space'] || mouseRight) && player.points.length > 26;
+    player.boosting = wantBoost;
+
+    if (wantBoost) {
+      boostAcc += dt;
+      while (boostAcc >= BOOST_SHRINK_DT && player.points.length > 26) {
+        player.points.pop();
+        boostAcc -= BOOST_SHRINK_DT;
+      }
+      if (Math.random() < 0.5) {
+        const t = player.points[player.points.length - 1];
+        addBurst(t.x, t.y, player.hue, 1);
+      }
+    } else {
+      boostAcc = 0;
+    }
+
+    moveSnake(player, dt);
+  }
+
+  /* ---------- AI ---------- */
+  for (let i = 0; i < ais.length; i++) {
+    const a = ais[i];
+    if (!a.alive) continue;
+    updateAI(a, dt);
+    moveSnake(a, dt);
+
+    if (a.boosting) {
+      a.shrinkAcc += dt;
+      while (a.shrinkAcc >= 0.13 && a.points.length > 26) {
+        a.points.pop();
+        a.shrinkAcc -= 0.13;
+      }
+    } else {
+      a.shrinkAcc = 0;
+    }
+  }
+
+  /* ---------- WORLD ---------- */
+  updatePellets(dt);
+  updateParticles(dt);
+  checkCollisions();
+
+  /* ---------- CAMERA ---------- */
+  const ctx0 = player.alive ? player.x : cam.x;
+  const cty0 = player.alive ? player.y : cam.y;
+  const lerp = Math.min(1, dt * 9);
+  cam.x += (ctx0 - cam.x) * lerp;
+  cam.y += (cty0 - cam.y) * lerp;
+
+  zoomTarget = player.boosting ? 0.87 : 1.0;
+  zoom += (zoomTarget - zoom) * Math.min(1, dt * 4.5);
+
+  /* ---------- HUD ---------- */
+  hudLenEl.textContent    = player.points.length;
+  hudPelEl.textContent    = pelletsEaten;
+  hudRivalsEl.textContent = ais.length;
+  if (player.boosting) boostTagEl.classList.add('on');
+  else boostTagEl.classList.remove('on');
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function drawGrid() {
+  const gs = 100;
+  const halfW = W / (2 * zoom) + gs;
+  const halfH = H / (2 * zoom) + gs;
+  const x0 = Math.floor((cam.x - halfW) / gs) * gs;
+  const x1 = cam.x + halfW;
+  const y0 = Math.floor((cam.y - halfH) / gs) * gs;
+  const y1 = cam.y + halfH;
+
+  ctx.lineWidth = 1 / zoom;
+  ctx.strokeStyle = 'rgba(0,190,255,0.075)';
+  ctx.beginPath();
+  for (let x = x0; x <= x1; x += gs) { ctx.moveTo(x, y0); ctx.lineTo(x, y1); }
+  for (let y = y0; y <= y1; y += gs) { ctx.moveTo(x0, y); ctx.lineTo(x1, y); }
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(120,0,255,0.075)';
+  ctx.beginPath();
+  for (let x = x0; x <= x1; x += gs) {
+    if (Math.round(x / gs) % 5 === 0) { ctx.moveTo(x, y0); ctx.lineTo(x, y1); }
+  }
+  for (let y = y0; y <= y1; y += gs) {
+    if (Math.round(y / gs) % 5 === 0) { ctx.moveTo(x0, y); ctx.lineTo(x1, y); }
+  }
+  ctx.stroke();
+}
+
+function drawPellets() {
+  const halfW = W / (2 * zoom) + 60;
+  const halfH = H / (2 * zoom) + 60;
+  const x0 = cam.x - halfW, x1 = cam.x + halfW;
+  const y0 = cam.y - halfH, y1 = cam.y + halfH;
+
+  for (let i = 0; i < pellets.length; i++) {
+    const p = pellets[i];
+    if (p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1) continue;
+
+    const pulse = 0.78 + 0.22 * Math.sin(p.phase);
+
+    ctx.globalAlpha = 0.16 * pulse;
+    ctx.fillStyle = `hsl(${p.hue},100%,60%)`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 3.4, 0, TAU);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = `hsl(${p.hue},100%,${p.big ? 76 : 70}%)`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * pulse, 0, TAU);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 0.42 * pulse, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------------------------------------------------------------------
+   Pattern overlays
+   --------------------------------------------------------------------- */
+function drawPattern(s, totalLen) {
+  const skin = s.skin;
+  const type = skin.pattern;
+  if (!type || type === 'none') return;
+
+  const pts = s.points;
+  const r = s.radius;
+  const baseStep = skin.patternStep * r;
+  const step = Math.max(baseStep, totalLen / 50);
+
+  const halfW = W / (2 * zoom) + 80;
+  const halfH = H / (2 * zoom) + 80;
+  const vx0 = cam.x - halfW, vx1 = cam.x + halfW;
+  const vy0 = cam.y - halfH, vy1 = cam.y + halfH;
+
+  const col = skin.patternColor;
+  const phase = s.skinPhase;
+
+  walkPath(pts, step, (x, y, ang, L, idx) => {
+    if (x < vx0 || x > vx1 || y < vy0 || y > vy1) return;
+
+    switch (type) {
+
+      /* --- clean Star of David, drawn upright relative to the body --- */
+      case 'israel': {
+        const sr = r * 0.82;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = r * 0.13;
+        ctx.lineJoin = 'round';
+        ctx.lineCap  = 'round';
+
+        /* Upward-pointing triangle */
+        ctx.beginPath();
+        ctx.moveTo(0, -sr);
+        ctx.lineTo( sr * 0.866, sr * 0.5);
+        ctx.lineTo(-sr * 0.866, sr * 0.5);
+        ctx.closePath();
+        ctx.stroke();
+
+        /* Downward-pointing triangle */
+        ctx.beginPath();
+        ctx.moveTo(0, sr);
+        ctx.lineTo( sr * 0.866, -sr * 0.5);
+        ctx.lineTo(-sr * 0.866, -sr * 0.5);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+        break;
+      }
+
+      case 'chevron': {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = r * 0.16;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(r * 0.55, -r * 0.72);
+        ctx.lineTo(-r * 0.05, 0);
+        ctx.lineTo(r * 0.55, r * 0.72);
+        ctx.stroke();
+        ctx.restore();
+        break;
+      }
+
+      case 'band': {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.fillStyle = col;
+        const bw = r * 0.42, bh = r * 1.7;
+        ctx.fillRect(-bw * 0.5, -bh * 0.5, bw, bh);
+        ctx.restore();
+        break;
+      }
+
+      case 'diamond': {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.fillStyle = col;
+        const dw = r * 0.62, dh = r * 0.60;
+        ctx.beginPath();
+        ctx.moveTo(dw, 0);
+        ctx.lineTo(0, dh);
+        ctx.lineTo(-dw, 0);
+        ctx.lineTo(0, -dh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        break;
+      }
+
+      case 'dot': {
+        const px = -Math.sin(ang), py = Math.cos(ang);
+        const off = r * 0.45;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(x + px * off, y + py * off, r * 0.24, 0, TAU);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x - px * off, y - py * off, r * 0.24, 0, TAU);
+        ctx.fill();
+        break;
+      }
+
+      case 'rib': {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = r * 0.10;
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.75);
+        ctx.lineTo(0, r * 0.75);
+        ctx.stroke();
+        ctx.restore();
+        break;
+      }
+
+      case 'star': {
+        const tw = 0.55 + 0.45 * Math.sin(phase + gameTime * 2.5 + L * 0.06);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.globalAlpha = tw;
+        ctx.fillStyle = col;
+        const sr = r * 0.44;
+        ctx.beginPath();
+        ctx.moveTo(sr, 0);
+        ctx.lineTo(0, sr * 0.26);
+        ctx.lineTo(-sr, 0);
+        ctx.lineTo(0, -sr * 0.26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, sr);
+        ctx.lineTo(sr * 0.26, 0);
+        ctx.lineTo(0, -sr);
+        ctx.lineTo(-sr * 0.26, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+        break;
+      }
+
+      case 'ray': {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = r * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.20);
+        ctx.lineTo(0, -r * 0.78);
+        ctx.moveTo(0, r * 0.20);
+        ctx.lineTo(0, r * 0.78);
+        ctx.stroke();
+        ctx.restore();
+        break;
+      }
+
+      case 'circuit': {
+        const mod = idx % 4;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(ang);
+        ctx.strokeStyle = col;
+        ctx.fillStyle = col;
+        ctx.lineWidth = r * 0.10;
+
+        if (mod === 0) {
+          ctx.fillRect(-r * 0.18, -r * 0.18, r * 0.36, r * 0.36);
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(0, -r * 0.78);
+          ctx.lineTo(0, -r * 0.22);
+          ctx.moveTo(0, r * 0.22);
+          ctx.lineTo(0, r * 0.78);
+          ctx.stroke();
+          if (mod === 2) {
+            ctx.beginPath();
+            ctx.moveTo(-r * 0.50, 0);
+            ctx.lineTo(r * 0.50, 0);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+        break;
+      }
+    }
+  });
+}
+
+function drawSnake(s) {
+  const pts = s.points;
+  const n = pts.length;
+  if (n < 2) return;
+
+  const r = s.radius;
+  const skin = s.skin;
+
+  const margin = s.br + 200;
+  const halfW = W / (2 * zoom);
+  const halfH = H / (2 * zoom);
+  if (s.bx + margin < cam.x - halfW || s.bx - margin > cam.x + halfW ||
+      s.by + margin < cam.y - halfH || s.by - margin > cam.y + halfH) return;
+
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  /* --- base path --- */
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
+
+  /* --- GOLD AURA (Israel skin) --- */
+  if (skin.aura === 'gold') {
+    const pulse = 0.85 + 0.15 * Math.sin(gameTime * 2.8);
+    ctx.shadowBlur = 55 * pulse;
+    ctx.shadowColor = '#ffd700';
+    ctx.strokeStyle = 'rgba(255,205,30,0.30)';
+    ctx.lineWidth = r * 4.4;
+    ctx.stroke();
+    ctx.shadowBlur = 32 * pulse;
+    ctx.shadowColor = '#ffe45c';
+    ctx.strokeStyle = 'rgba(255,230,90,0.55)';
+    ctx.lineWidth = r * 2.9;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  /* --- outer glow --- */
+  ctx.shadowBlur = 30;
+  ctx.shadowColor = skin.glow;
+  ctx.strokeStyle = skin.glowSoft;
+  ctx.lineWidth = r * 2.35;
+  ctx.stroke();
+
+  /* --- body gradient --- */
+  const hx = pts[0].x, hy = pts[0].y;
+  const tx = pts[n - 1].x, ty = pts[n - 1].y;
+  const ddx = tx - hx, ddy = ty - hy;
+  let grd;
+  if (ddx * ddx + ddy * ddy > 4) grd = ctx.createLinearGradient(hx, hy, tx, ty);
+  else grd = ctx.createLinearGradient(hx, hy, hx + 1, hy);
+
+  grd.addColorStop(0.00, skin.c0);
+  grd.addColorStop(0.45, skin.c1);
+  grd.addColorStop(1.00, skin.c2);
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = grd;
+  ctx.lineWidth = r * 1.85;
+  ctx.stroke();
+
+  /* --- flag stripes (Israel skin) --- */
+  if (skin.stripe) {
+    const off = r * skin.stripe.offset;
+    const w   = r * skin.stripe.width;
+    strokeOffsetPath(pts, -off, skin.stripe.color, w);
+    strokeOffsetPath(pts,  off, skin.stripe.color, w);
+  }
+
+  /* --- pattern overlay --- */
+  const totalLen = pathLength(pts);
+  drawPattern(s, totalLen);
+
+  /* --- bright core line --- */
+  ctx.strokeStyle = skin.core;
+  ctx.lineWidth = r * skin.coreWidth;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+
+  /* --- head --- */
+  ctx.shadowBlur = 30;
+  ctx.shadowColor = skin.headGlow;
+  ctx.fillStyle = skin.head;
+  ctx.beginPath();
+  ctx.arc(hx, hy, r * 1.28, 0, TAU);
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+
+  /* --- eyes --- */
+  const ex = Math.cos(s.angle), ey = Math.sin(s.angle);
+  const px = -ey, py = ex;
+  const ef = r * 0.42, es = r * 0.50;
+
+  const e1x = hx + ex * ef + px * es, e1y = hy + ey * ef + py * es;
+  const e2x = hx + ex * ef - px * es, e2y = hy + ey * ef - py * es;
+
+  ctx.fillStyle = '#04060c';
+  ctx.beginPath(); ctx.arc(e1x, e1y, r * 0.21, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.arc(e2x, e2y, r * 0.21, 0, TAU); ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.beginPath(); ctx.arc(e1x - r * 0.07, e1y - r * 0.07, r * 0.08, 0, TAU); ctx.fill();
+  ctx.beginPath(); ctx.arc(e2x - r * 0.07, e2y - r * 0.07, r * 0.08, 0, TAU); ctx.fill();
+}
+
+function drawParticles() {
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const a = Math.max(0, p.life / p.maxLife);
+    ctx.globalAlpha = a * 0.9;
+    ctx.fillStyle = `hsl(${p.hue},100%,70%)`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * a, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#04050c';
+  ctx.fillRect(0, 0, W, H);
+
+  let shx = 0, shy = 0;
+  if (shake > 0) {
+    const m = shake * 16;
+    shx = rand(-m, m);
+    shy = rand(-m, m);
+  }
+
+  ctx.save();
+  ctx.translate(W / 2 + shx, H / 2 + shy);
+  ctx.scale(zoom, zoom);
+  ctx.translate(-cam.x, -cam.y);
+
+  drawGrid();
+  drawPellets();
+
+  for (let i = 0; i < ais.length; i++) if (ais[i].alive) drawSnake(ais[i]);
+  if (player && player.alive) drawSnake(player);
+
+  drawParticles();
+
+  ctx.restore();
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
+
+  if (player && player.boosting) {
+    ctx.fillStyle = 'rgba(255,190,60,0.045)';
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+/* =====================================================================
+   GAME FLOW
+   ===================================================================== */
+function initGame() {
+  cam.x = 0; cam.y = 0;
+  zoom = 1; zoomTarget = 1;
+  shake = 0;
+  gameOver = false;
+  deathTimer = -1;
+  pelletsEaten = 0;
+  boostAcc = 0;
+  boosting = false;
+  gameTime = 0;
+  nextId = 0;
+
+  pellets.length = 0;
+  particles.length = 0;
+  ais.length = 0;
+  respawnQueue.length = 0;
+
+  player = makeSnake(0, 0, 0, selectedSkinKey, true);
+
+  snakes.length = 0;
+  snakes.push(player);
+
+  for (let i = 0; i < MAX_AI; i++) spawnAI(false);
+
+  for (let i = 0; i < PELLET_TARGET; i++) spawnAmbientPellet();
+
+  mouse.sx = W / 2 + 260;
+  mouse.sy = H / 2;
+  mouse.wx = mouse.sx;
+  mouse.wy = mouse.sy;
+
+  overEl.classList.remove('show');
+  pauseEl.classList.remove('show');
+  boostTagEl.classList.remove('on');
+}
+
+function startGame() {
+  initGame();
+  gameState = 'playing';
+  menuEl.classList.remove('show');
+  pauseEl.classList.remove('show');
+  overEl.classList.remove('show');
+}
+
+function goToMenu() {
+  initGame();
+  gameState = 'menu';
+  menuEl.classList.add('show');
+  pauseEl.classList.remove('show');
+  overEl.classList.remove('show');
+}
+
+function togglePause() {
+  if (gameState === 'playing') {
+    gameState = 'paused';
+    pauseEl.classList.add('show');
+  } else if (gameState === 'paused') {
+    gameState = 'playing';
+    pauseEl.classList.remove('show');
+  }
+}
+
+/* =====================================================================
+   SKIN MENU UI
+   ===================================================================== */
+function buildSkinMenu() {
+  skinGridEl.innerHTML = '';
+  SELECTABLE_SKINS.forEach(key => {
+    const skin = SKINS[key];
+    if (!skin) return;
+
+    const card = document.createElement('div');
+    card.className = 'skin-card' + (key === selectedSkinKey ? ' selected' : '');
+    if (skin.secret) card.classList.add('secret');
+    card.dataset.key = key;
+
+    const swatch = document.createElement('div');
+    swatch.className = 'skin-swatch';
+    const g = skin.swatch ||
+      `linear-gradient(90deg, ${skin.c0} 0%, ${skin.c1} 50%, ${skin.c2} 100%)`;
+    swatch.style.background = g;
+    swatch.style.color = skin.glow;
+
+    const name = document.createElement('div');
+    name.className = 'skin-name';
+    name.textContent = skin.name;
+
+    card.appendChild(swatch);
+    card.appendChild(name);
+
+    card.addEventListener('click', () => {
+      selectedSkinKey = key;
+      skinGridEl.querySelectorAll('.skin-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+
+    skinGridEl.appendChild(card);
+  });
+}
+
+/* Unlock the hidden Israel skin */
+function unlockIsrael() {
+  if (israelUnlocked) return;
+  israelUnlocked = true;
+  SELECTABLE_SKINS = ['circuit', 'israel'].concat(BASE_SELECTABLE.slice(1));
+  /* Selected skin stays the same; rebuild menu */
+  buildSkinMenu();
+  /* Auto-select Israel on reveal for extra delight */
+  selectedSkinKey = 'israel';
+  buildSkinMenu();
+}
+
+/* =====================================================================
+   INPUT
+   ===================================================================== */
+window.addEventListener('keydown', (e) => {
+  /* Prevent page scroll */
+  if (e.code === 'Space' ||
+      e.code === 'ArrowUp' || e.code === 'ArrowDown' ||
+      e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+    e.preventDefault();
+  }
+
+  /* ESC handling */
+  if (e.code === 'Escape') {
+    if (gameState === 'playing') {
+      togglePause();
+    } else if (gameState === 'paused') {
+      togglePause();
+    } else if (gameState === 'gameover') {
+      goToMenu();
+    }
+    return;
+  }
+
+  /* Secret unlock in the main menu */
+  if (e.code === 'KeyS' && gameState === 'menu') {
+    unlockIsrael();
+    return;
+  }
+
+  if (e.repeat) return;
+  keys[e.code] = true;
+
+  if (gameState === 'gameover' &&
+      (e.code === 'Space' || e.code === 'KeyR' || e.code === 'Enter')) {
+    initGame();
+    gameState = 'playing';
+    overEl.classList.remove('show');
+  }
+});
+
+window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+window.addEventListener('mousemove', (e) => {
+  mouse.sx = e.clientX;
+  mouse.sy = e.clientY;
+});
+
+window.addEventListener('mousedown', (e) => {
+  if (e.button === 2) { mouseRight = true; e.preventDefault(); }
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (e.button === 2) { mouseRight = false; e.preventDefault(); }
+});
+
+window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+window.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  if (t) { mouse.sx = t.clientX; mouse.sy = t.clientY; }
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  if (t) { mouse.sx = t.clientX; mouse.sy = t.clientY; }
+}, { passive: true });
+
+/* ---------- BUTTONS ---------- */
+document.getElementById('playBtn').addEventListener('click', startGame);
+
+document.getElementById('restartBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  initGame();
+  gameState = 'playing';
+  overEl.classList.remove('show');
+});
+
+document.getElementById('overMenuBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  goToMenu();
+});
+
+document.getElementById('resumeBtn').addEventListener('click', () => {
+  togglePause();
+});
+
+document.getElementById('pauseRestartBtn').addEventListener('click', () => {
+  initGame();
+  gameState = 'playing';
+  pauseEl.classList.remove('show');
+});
+
+document.getElementById('pauseMenuBtn').addEventListener('click', () => {
+  goToMenu();
+});
+
+/* =====================================================================
+   MAIN LOOP
+   ===================================================================== */
+let lastT = performance.now();
+
+function loop(now) {
+  let dt = (now - lastT) / 1000;
+  lastT = now;
+  if (dt > 0.05) dt = 0.05;
+  if (dt < 0) dt = 0;
+
+  update(dt);
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+buildSkinMenu();
+initGame();          /* pre-populate the world for a live menu background */
+gameState = 'menu';  /* but stay in menu until Play */
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>
