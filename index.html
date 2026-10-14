@@ -48,6 +48,64 @@
     color: #4fd8ff; opacity: .32;
   }
 
+  /* ---------- LEADERBOARD (TOP 3) ---------- */
+  #leaderboard {
+    position: fixed;
+    top: 20px; right: 20px;
+    width: 220px;
+    padding: 14px 16px 12px;
+    background: rgba(4,10,22,.68);
+    border: 1px solid rgba(0,180,255,.28);
+    border-radius: 4px;
+    color: #a8e4ff;
+    text-shadow: 0 0 6px rgba(0,229,255,.5);
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    backdrop-filter: blur(2px);
+  }
+  #leaderboard.show { display: block; }
+  #leaderboard h3 {
+    margin: 0 0 10px;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: #8fd8ff;
+    opacity: .75;
+    text-align: center;
+    font-weight: 700;
+  }
+  #lbList {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  #lbList li {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    gap: 8px;
+    align-items: baseline;
+    padding: 5px 0;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #7fb8d8;
+    opacity: .85;
+  }
+  #lbList li .rank { color: #4fd8ff; opacity: .55; font-size: 10px; }
+  #lbList li .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #lbList li .len { opacity: .9; font-weight: 700; }
+  #lbList li.isPlayer {
+    color: #fff3b0;
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(255,200,0,.8), 0 0 18px rgba(255,140,0,.5);
+  }
+  #lbList li.isPlayer .rank { color: #ffd23c; opacity: .9; }
+  #lbList li:nth-child(1) .rank { color: #ffd23c; opacity: .95; }
+  #lbList li:nth-child(2) .rank { color: #cfd8e0; opacity: .85; }
+  #lbList li:nth-child(3) .rank { color: #d08a4a; opacity: .85; }
+
   /* ---------- Shared overlay base ---------- */
   .overlay {
     position: fixed; inset: 0;
@@ -65,13 +123,9 @@
   .panel {
     text-align: center;
     padding: 44px 58px;
-    border: 1px solid rgba(255,60,120,.55);
+    border: 1px solid rgba(255,60,120,.35);
     border-radius: 4px;
-    background: rgba(10,2,20,.72);
-    box-shadow:
-      0 0 24px rgba(255,40,110,.45),
-      inset 0 0 40px rgba(255,40,110,.10),
-      0 0 90px rgba(120,0,255,.25);
+    background: rgba(10,2,20,.85);
     animation: pop .35s cubic-bezier(.2,1.4,.5,1);
   }
   @keyframes pop { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -80,7 +134,6 @@
     margin: 0 0 6px;
     font-size: 34px; letter-spacing: 8px;
     color: #ff5c8a;
-    text-shadow: 0 0 10px #ff0055, 0 0 34px #ff0055, 0 0 70px #b00040;
   }
   .panel .sub {
     margin: 0 0 28px;
@@ -90,7 +143,6 @@
   .scores > div { display: flex; flex-direction: column; gap: 6px; }
   .scores span {
     font-size: 38px; font-weight: 700; color: #eaffff;
-    text-shadow: 0 0 10px #00e5ff, 0 0 30px #0090ff;
   }
   .scores small { font-size: 9px; letter-spacing: 4px; color: #6ab8d8; }
 
@@ -163,7 +215,7 @@
     grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
     gap: 10px;
     max-width: 620px;
-    margin: 0 auto 26px;
+    margin: 0 auto 22px;
   }
   .skin-card {
     display: flex; flex-direction: column; align-items: center;
@@ -214,6 +266,33 @@
   }
   .skin-card.selected .skin-name { color: #ffe98a; }
 
+  /* ---------- NAME INPUT ---------- */
+  #nameInput {
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 4px;
+    padding: 11px 16px;
+    background: rgba(4,10,22,.8);
+    border: 1px solid rgba(0,180,255,.4);
+    border-radius: 3px;
+    color: #d8ffff;
+    text-align: center;
+    outline: none;
+    width: 280px;
+    max-width: 80vw;
+    margin-bottom: 22px;
+    text-shadow: 0 0 8px rgba(0,229,255,.6);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  #nameInput:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 16px rgba(0,220,255,.5), inset 0 0 8px rgba(0,200,255,.15);
+  }
+  #nameInput::placeholder {
+    color: #3d5a7a;
+    letter-spacing: 4px;
+  }
+
   .menu-controls {
     margin: 22px 0 0;
     font-size: 9px; letter-spacing: 2px; color: #5c7a9a;
@@ -262,11 +341,17 @@
   <div id="ctrlTag">MOVE ▸ MOUSE OR ARROW KEYS</div>
 </div>
 
-<!-- ---------- START MENU ---------- -->
+<div id="leaderboard">
+  <h3>TOP 3</h3>
+  <ol id="lbList"></ol>
+</div>
+
 <div id="menu" class="overlay show">
   <div class="menu-panel">
     <h1>NEON SERPENT</h1>
     <p class="tagline">SLITHER · GROW · SURVIVE</p>
+    <p class="section-label">YOUR NAME</p>
+    <input type="text" id="nameInput" maxlength="16" placeholder="ENTER NAME" value="YOU" spellcheck="false" autocomplete="off">
     <p class="section-label">SELECT YOUR SERPENT</p>
     <div id="skinGrid"></div>
     <button class="btn" id="playBtn">PLAY</button>
@@ -278,7 +363,6 @@
   </div>
 </div>
 
-<!-- ---------- PAUSE ---------- -->
 <div id="pause" class="overlay">
   <div class="pause-panel">
     <h2>PAUSED</h2>
@@ -288,10 +372,9 @@
   </div>
 </div>
 
-<!-- ---------- GAME OVER ---------- -->
 <div id="over" class="overlay">
   <div class="panel">
-    <h1>SYSTEM FAILURE</h1>
+    <h1>YOU'RE DEAD</h1>
     <p class="sub">YOUR SERPENT HAS BEEN FRAGMENTED</p>
     <div class="scores">
       <div><span id="finalLen">0</span><small>LENGTH</small></div>
@@ -311,7 +394,7 @@
    SETUP
    ===================================================================== */
 const canvas = document.getElementById('cv');
-const ctx = canvas.getContext('2d', { alpha: false });
+const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 const hudLenEl    = document.getElementById('hudLen');
 const hudPelEl    = document.getElementById('hudPel');
 const hudRivalsEl = document.getElementById('hudRivals');
@@ -322,6 +405,12 @@ const pauseEl     = document.getElementById('pause');
 const skinGridEl  = document.getElementById('skinGrid');
 const finalLenEl  = document.getElementById('finalLen');
 const finalPelEl  = document.getElementById('finalPel');
+const leaderboardEl = document.getElementById('leaderboard');
+const lbListEl      = document.getElementById('lbList');
+const nameInputEl   = document.getElementById('nameInput');
+
+/* Perf scratch buffers — reused every frame to avoid GC churn */
+const lbRowEls = [];   // 3 reusable <li> rows
 
 let W = 0, H = 0, DPR = 1;
 let vignette = null;
@@ -357,189 +446,148 @@ function angDiff(a, b) {
   while (d < -Math.PI) d += TAU;
   return d;
 }
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+}
 
 /* =====================================================================
    SKINS
    ===================================================================== */
 const SKINS = {
   circuit: {
-    name: 'Circuit',
-    hue: 188,
-    glow: '#00e5ff',
+    name: 'Circuit', hue: 188, glow: '#00e5ff',
     glowSoft: 'rgba(0,229,255,0.50)',
     c0: '#0b2e3a', c1: '#00c8ff', c2: '#0060ff',
-    core: 'rgba(235,255,255,0.92)',
-    coreWidth: 0.46,
-    pattern: 'circuit',
-    patternColor: 'rgba(190,255,255,0.9)',
-    patternStep: 2.4,
-    head: '#eaffff',
-    headGlow: '#00e5ff'
+    core: 'rgba(235,255,255,0.92)', coreWidth: 0.46,
+    pattern: 'circuit', patternColor: 'rgba(190,255,255,0.9)',
+    patternStep: 2.4, head: '#eaffff', headGlow: '#00e5ff'
   },
-
-  /* ---------- ISRAEL (hidden until 'S' pressed) ---------- */
   israel: {
-    name: 'Israel',
-    hue: 220,
-    glow: '#ffd700',
+    name: 'Israel', hue: 220, glow: '#ffd700',
     glowSoft: 'rgba(255,215,0,0.55)',
-    /* Pure white body with subtle cool shading */
     c0: '#ffffff', c1: '#f6faff', c2: '#e6eef8',
-    /* Blue center core */
-    core: 'rgba(0,60,180,0.30)',
-    coreWidth: 0.42,
-    /* Side stripes running along the body */
-    stripe: {
-      offset: 0.62,       // in units of radius
-      width: 0.30,        // in units of radius
-      color: 'rgba(0,60,180,0.95)'
-    },
-    /* Star of David marks along the center */
-    pattern: 'israel',
-    patternColor: 'rgba(0,60,180,0.98)',
-    patternStep: 4.0,
-    head: '#ffffff',
-    headGlow: '#ffd700',
-    aura: 'gold',
-    secret: true,
+    core: 'rgba(0,60,180,0.30)', coreWidth: 0.42,
+    stripe: { offset: 0.62, width: 0.30, color: 'rgba(0,60,180,0.95)' },
+    pattern: 'israel', patternColor: 'rgba(0,60,180,0.98)',
+    patternStep: 4.0, head: '#ffffff', headGlow: '#ffd700',
+    aura: 'gold', secret: true,
     swatch: 'linear-gradient(180deg, #003cb4 0%, #003cb4 18%, #ffffff 18%, #ffffff 82%, #003cb4 82%, #003cb4 100%)'
   },
-
   viper: {
-    name: 'Viper',
-    hue: 130,
-    glow: '#3dff7a',
+    name: 'Viper', hue: 130, glow: '#3dff7a',
     glowSoft: 'rgba(61,255,122,0.45)',
     c0: '#062b12', c1: '#2fd45e', c2: '#0a6b2a',
-    core: 'rgba(220,255,225,0.72)',
-    coreWidth: 0.38,
-    pattern: 'chevron',
-    patternColor: 'rgba(4,22,9,0.85)',
-    patternStep: 2.2,
-    head: '#d8ffe4',
-    headGlow: '#3dff7a'
+    core: 'rgba(220,255,225,0.72)', coreWidth: 0.38,
+    pattern: 'chevron', patternColor: 'rgba(4,22,9,0.85)',
+    patternStep: 2.2, head: '#d8ffe4', headGlow: '#3dff7a'
   },
   ember: {
-    name: 'Ember',
-    hue: 22,
-    glow: '#ff8a2b',
+    name: 'Ember', hue: 22, glow: '#ff8a2b',
     glowSoft: 'rgba(255,138,43,0.45)',
     c0: '#3a0d02', c1: '#ff7a18', c2: '#c2140a',
-    core: 'rgba(255,235,190,0.78)',
-    coreWidth: 0.38,
-    pattern: 'band',
-    patternColor: 'rgba(28,4,0,0.72)',
-    patternStep: 2.0,
-    head: '#ffd9a8',
-    headGlow: '#ff8a2b'
+    core: 'rgba(255,235,190,0.78)', coreWidth: 0.38,
+    pattern: 'band', patternColor: 'rgba(28,4,0,0.72)',
+    patternStep: 2.0, head: '#ffd9a8', headGlow: '#ff8a2b'
   },
   amethyst: {
-    name: 'Amethyst',
-    hue: 285,
-    glow: '#c46bff',
+    name: 'Amethyst', hue: 285, glow: '#c46bff',
     glowSoft: 'rgba(196,107,255,0.45)',
     c0: '#210636', c1: '#a24dff', c2: '#ff4fd8',
-    core: 'rgba(250,230,255,0.80)',
-    coreWidth: 0.40,
-    pattern: 'diamond',
-    patternColor: 'rgba(255,222,255,0.58)',
-    patternStep: 2.6,
-    head: '#f0d8ff',
-    headGlow: '#c46bff'
+    core: 'rgba(250,230,255,0.80)', coreWidth: 0.40,
+    pattern: 'diamond', patternColor: 'rgba(255,222,255,0.58)',
+    patternStep: 2.6, head: '#f0d8ff', headGlow: '#c46bff'
   },
   frost: {
-    name: 'Frost',
-    hue: 200,
-    glow: '#8fd8ff',
+    name: 'Frost', hue: 200, glow: '#8fd8ff',
     glowSoft: 'rgba(143,216,255,0.45)',
     c0: '#0b2334', c1: '#a8e4ff', c2: '#4a86c8',
-    core: 'rgba(255,255,255,0.90)',
-    coreWidth: 0.42,
-    pattern: 'dot',
-    patternColor: 'rgba(255,255,255,0.78)',
-    patternStep: 2.4,
-    head: '#ffffff',
-    headGlow: '#8fd8ff'
+    core: 'rgba(255,255,255,0.90)', coreWidth: 0.42,
+    pattern: 'dot', patternColor: 'rgba(255,255,255,0.78)',
+    patternStep: 2.4, head: '#ffffff', headGlow: '#8fd8ff'
   },
   toxic: {
-    name: 'Toxic',
-    hue: 75,
-    glow: '#c8ff2b',
+    name: 'Toxic', hue: 75, glow: '#c8ff2b',
     glowSoft: 'rgba(200,255,43,0.42)',
     c0: '#1e2a03', c1: '#b4e81a', c2: '#3d7a06',
-    core: 'rgba(240,255,200,0.70)',
-    coreWidth: 0.36,
-    pattern: 'rib',
-    patternColor: 'rgba(18,26,0,0.72)',
-    patternStep: 1.6,
-    head: '#eaffb0',
-    headGlow: '#c8ff2b'
+    core: 'rgba(240,255,200,0.70)', coreWidth: 0.36,
+    pattern: 'rib', patternColor: 'rgba(18,26,0,0.72)',
+    patternStep: 1.6, head: '#eaffb0', headGlow: '#c8ff2b'
   },
   void: {
-    name: 'Void',
-    hue: 265,
-    glow: '#7a3cff',
+    name: 'Void', hue: 265, glow: '#7a3cff',
     glowSoft: 'rgba(122,60,255,0.50)',
     c0: '#05030f', c1: '#3a1a7a', c2: '#0a0518',
-    core: 'rgba(180,150,255,0.85)',
-    coreWidth: 0.34,
-    pattern: 'star',
-    patternColor: 'rgba(205,185,255,0.95)',
-    patternStep: 3.0,
-    head: '#cbb4ff',
-    headGlow: '#7a3cff'
+    core: 'rgba(180,150,255,0.85)', coreWidth: 0.34,
+    pattern: 'star', patternColor: 'rgba(205,185,255,0.95)',
+    patternStep: 3.0, head: '#cbb4ff', headGlow: '#7a3cff'
   },
   solar: {
-    name: 'Solar',
-    hue: 48,
-    glow: '#ffd23c',
+    name: 'Solar', hue: 48, glow: '#ffd23c',
     glowSoft: 'rgba(255,210,60,0.45)',
     c0: '#3a2600', c1: '#ffc21a', c2: '#ff7a00',
-    core: 'rgba(255,250,210,0.92)',
-    coreWidth: 0.44,
-    pattern: 'ray',
-    patternColor: 'rgba(80,40,0,0.55)',
-    patternStep: 2.2,
-    head: '#fff3c4',
-    headGlow: '#ffd23c'
+    core: 'rgba(255,250,210,0.92)', coreWidth: 0.44,
+    pattern: 'ray', patternColor: 'rgba(80,40,0,0.55)',
+    patternStep: 2.2, head: '#fff3c4', headGlow: '#ffd23c'
   },
   rose: {
-    name: 'Rose',
-    hue: 335,
-    glow: '#ff5c9e',
+    name: 'Rose', hue: 335, glow: '#ff5c9e',
     glowSoft: 'rgba(255,92,158,0.45)',
     c0: '#33061c', c1: '#ff4f9e', c2: '#b81260',
-    core: 'rgba(255,225,240,0.85)',
-    coreWidth: 0.42,
-    pattern: 'dot',
-    patternColor: 'rgba(255,255,255,0.62)',
-    patternStep: 2.8,
-    head: '#ffd6e8',
-    headGlow: '#ff5c9e'
+    core: 'rgba(255,225,240,0.85)', coreWidth: 0.42,
+    pattern: 'dot', patternColor: 'rgba(255,255,255,0.62)',
+    patternStep: 2.8, head: '#ffd6e8', headGlow: '#ff5c9e'
   },
   cobalt: {
-    name: 'Cobalt',
-    hue: 222,
-    glow: '#4f8cff',
+    name: 'Cobalt', hue: 222, glow: '#4f8cff',
     glowSoft: 'rgba(79,140,255,0.45)',
     c0: '#050f2e', c1: '#2f6cff', c2: '#0a2a8a',
-    core: 'rgba(220,235,255,0.86)',
-    coreWidth: 0.50,
-    pattern: 'rib',
-    patternColor: 'rgba(200,225,255,0.35)',
-    patternStep: 2.2,
-    head: '#cfe0ff',
-    headGlow: '#4f8cff'
+    core: 'rgba(220,235,255,0.86)', coreWidth: 0.50,
+    pattern: 'rib', patternColor: 'rgba(200,225,255,0.35)',
+    patternStep: 2.2, head: '#cfe0ff', headGlow: '#4f8cff'
   }
 };
 
 const AI_SKIN_KEYS = ['viper','ember','amethyst','frost','toxic','void','solar','rose','cobalt'];
-/* Israel is NOT here by default — it is unlocked by pressing 'S' in the menu */
 const BASE_SELECTABLE = ['circuit','viper','ember','amethyst','frost','toxic','void','solar','rose','cobalt'];
 let SELECTABLE_SKINS = BASE_SELECTABLE.slice();
 let israelUnlocked = false;
-
 let selectedSkinKey = 'circuit';
+
+/* =====================================================================
+   BOT USERNAMES
+   ===================================================================== */
+const BOT_NAMES = [
+  'davidmayzelman500', 'sabetster2011', 'KUzhAn', 'DAYYYAN',
+  'xX_Sh4d0w_Xx', 'NeonViper42', 'coolguy2007', 'SnakeMaster99',
+  'l33t_h4x0r', 'BobTheBuilder', 'ProGamer_2010', 'ilovepizza',
+  'n00bslayer', 'RedDragon87', 'frostbite777', 'ThE_dEsTrOyEr',
+  'Minecraft4life', 'yoloSwag420', 'VibeZ_2024', 'xxX_Death_Xxx',
+  'silentstorm', 'CyberNinja88', 'PvP_K1ng', 'AlphaWolf',
+  'SneakySnek', 'NoScope360', 'trollface', 'GG_EZ',
+  'godofwar', 'ToxicAvenger', 'GoldFang', 'B1gB0ss',
+  'KrazyKobra', 'ZeroChill', 'SlippyJoe', 'ViperKing',
+  'DarkMatter', 'QuantumLeap', 'n1ghtfury', 'SpicyNoodle',
+  'mrmiyagi', 'jellybean42', 'TheRealSlim', 'glitchgamer',
+  'MidnightX', 'RocketRaccoon', 'pixelpuncher', 'cyber_punk',
+  'wraithlord', 'Sn4k3L0rd'
+];
+
+let botNamePool = [];
+function shuffleInPlace(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function pickBotName() {
+  if (botNamePool.length === 0) botNamePool = shuffleInPlace(BOT_NAMES.slice());
+  return botNamePool.pop();
+}
+
+let playerName = 'YOU';
 
 /* =====================================================================
    TUNING
@@ -569,6 +617,28 @@ const AI_REACT_MIN    = 0.14;
 const AI_REACT_MAX    = 0.42;
 const AI_BOOST_CHANCE = 0.18;
 
+const AI_ARCHETYPES = {
+  grazer: { skillMin: 0.28, skillMax: 0.48, aggression: 0.00, boostChance: 0.05,
+            huntRange: 0, huntLead: 0, huntDurMin: 0, huntDurMax: 0,
+            cooldownMin: 8, cooldownMax: 14 },
+  hunter: { skillMin: 0.52, skillMax: 0.72, aggression: 0.28, boostChance: 0.14,
+            huntRange: 430, huntLead: 0.75, huntDurMin: 0.45, huntDurMax: 1.00,
+            cooldownMin: 7, cooldownMax: 15 },
+  elite:  { skillMin: 0.76, skillMax: 0.96, aggression: 0.55, boostChance: 0.22,
+            huntRange: 640, huntLead: 1.00, huntDurMin: 0.60, huntDurMax: 1.35,
+            cooldownMin: 6, cooldownMax: 12 }
+};
+
+const AI_SPAWN_MIX = [ ['grazer', 0.46], ['hunter', 0.34], ['elite', 0.20] ];
+
+const MAX_ACTIVE_HUNTS = 2;
+const HUNT_MIN_DIST    = 150;
+const HUNT_ABORT_DIST  = 95;
+const HUNT_SIDE_CONE   = 2.15;
+const HUNT_AIM_CONE    = 1.15;
+const HUNT_MIN_LEN     = 42;
+const HUNT_LEAD_MAX    = 0.90;
+
 let cam = { x: 0, y: 0 };
 let zoom = 1, zoomTarget = 1;
 
@@ -591,7 +661,6 @@ let deathTimer = -1;
 let pelletsEaten = 0;
 let shake = 0;
 let gameTime = 0;
-
 let nextId = 0;
 
 /* =====================================================================
@@ -629,7 +698,6 @@ function walkPath(pts, step, cb) {
   }
 }
 
-/* Draw an offset version of a snake path (used for flag stripes) */
 function strokeOffsetPath(pts, offset, color, width) {
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
@@ -637,19 +705,11 @@ function strokeOffsetPath(pts, offset, color, width) {
   const n = pts.length;
   for (let i = 0; i < n; i++) {
     let tx, ty;
-    if (i === 0) {
-      tx = pts[1].x - pts[0].x;
-      ty = pts[1].y - pts[0].y;
-    } else if (i === n - 1) {
-      tx = pts[i].x - pts[i - 1].x;
-      ty = pts[i].y - pts[i - 1].y;
-    } else {
-      tx = pts[i + 1].x - pts[i - 1].x;
-      ty = pts[i + 1].y - pts[i - 1].y;
-    }
+    if (i === 0) { tx = pts[1].x - pts[0].x; ty = pts[1].y - pts[0].y; }
+    else if (i === n - 1) { tx = pts[i].x - pts[i-1].x; ty = pts[i].y - pts[i-1].y; }
+    else { tx = pts[i+1].x - pts[i-1].x; ty = pts[i+1].y - pts[i-1].y; }
     const len = Math.hypot(tx, ty) || 1;
-    const nx = -ty / len;
-    const ny =  tx / len;
+    const nx = -ty / len, ny = tx / len;
     const x = pts[i].x + nx * offset;
     const y = pts[i].y + ny * offset;
     if (i === 0) ctx.moveTo(x, y);
@@ -661,11 +721,23 @@ function strokeOffsetPath(pts, offset, color, width) {
 /* =====================================================================
    SNAKE
    ===================================================================== */
-function makeSnake(x, y, angle, skinKey, isPlayer) {
+function pickAIArchetype() {
+  let r = Math.random();
+  for (let i = 0; i < AI_SPAWN_MIX.length; i++) {
+    r -= AI_SPAWN_MIX[i][1];
+    if (r <= 0) return AI_ARCHETYPES[AI_SPAWN_MIX[i][0]];
+  }
+  return AI_ARCHETYPES.grazer;
+}
+
+function makeSnake(x, y, angle, skinKey, isPlayer, name) {
   const skin = SKINS[skinKey] || SKINS.circuit;
+  const arch = isPlayer ? null : pickAIArchetype();
+
   const s = {
     id: nextId++,
     x, y, angle, isPlayer,
+    name: name || 'SNAKE',
     skin: skin,
     hue: skin.hue,
     skinPhase: Math.random() * TAU,
@@ -678,7 +750,21 @@ function makeSnake(x, y, angle, skinKey, isPlayer) {
     turnRate: isPlayer ? PLAYER_TURN : AI_TURN,
     baseSpeed: isPlayer ? PLAYER_SPEED : AI_SPEED,
     bx: x, by: y, br: 120,
-    skill: isPlayer ? 1 : rand(0.40, 0.85),
+    skill: isPlayer ? 1 : rand(arch.skillMin, arch.skillMax),
+
+    /* --- perf caches (updated every N frames) --- */
+    _pathLen: 0,
+    _pathLenDirty: true,
+    _boundsDirty: true,
+
+    /* --- AI personality --- */
+    arch: arch,
+    aggression: isPlayer ? 0 : arch.aggression,
+    huntRange: isPlayer ? 0 : arch.huntRange,
+    huntT: 0,
+    huntCooldown: isPlayer ? 0 : rand(2.5, arch.cooldownMax),
+    huntAng: 0,
+
     aiPlanT: 0,
     aiTargetAng: angle,
     wander: angle,
@@ -705,6 +791,7 @@ function addSegment(s) {
   let dx = a.x - b.x, dy = a.y - b.y;
   const d = Math.hypot(dx, dy) || 1;
   pts.push({ x: a.x + dx / d * s.spacing, y: a.y + dy / d * s.spacing });
+  s._pathLenDirty = true;
 }
 
 function moveSnake(s, dt) {
@@ -748,12 +835,8 @@ function computeBounds(s) {
    PELLETS / PARTICLES
    ===================================================================== */
 function makePellet(x, y, hue, value, vx, vy, r) {
-  return {
-    x, y, vx: vx || 0, vy: vy || 0,
-    hue, value, r: r || 3.6,
-    phase: Math.random() * TAU,
-    big: value >= 2
-  };
+  return { x, y, vx: vx || 0, vy: vy || 0, hue, value, r: r || 3.6,
+           phase: Math.random() * TAU, big: value >= 2 };
 }
 
 function spawnAmbientPellet() {
@@ -761,11 +844,7 @@ function spawnAmbientPellet() {
   const d = rand(280, 1500);
   const hues = [48, 175, 300, 200, 110];
   const hue = hues[(Math.random() * hues.length) | 0];
-  pellets.push(makePellet(
-    player.x + Math.cos(a) * d,
-    player.y + Math.sin(a) * d,
-    hue, 1
-  ));
+  pellets.push(makePellet(player.x + Math.cos(a) * d, player.y + Math.sin(a) * d, hue, 1));
 }
 
 function addBurst(x, y, hue, count) {
@@ -785,8 +864,33 @@ function addBurst(x, y, hue, count) {
 /* =====================================================================
    AI
    ===================================================================== */
+function countActiveHunts() {
+  let c = 0;
+  for (let i = 0; i < ais.length; i++) if (ais[i].alive && ais[i].huntT > 0) c++;
+  return c;
+}
+
+function huntInterceptAngle(s, head) {
+  const dx = player.x - head.x, dy = player.y - head.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const pSpd = player.baseSpeed * (player.boosting ? BOOST_MULT : 1);
+  const t = Math.min(dist / (s.baseSpeed * BOOST_MULT), HUNT_LEAD_MAX) * s.arch.huntLead;
+  const ix = player.x + Math.cos(player.angle) * pSpd * t;
+  const iy = player.y + Math.sin(player.angle) * pSpd * t;
+  return Math.atan2(iy - head.y, ix - head.x);
+}
+
 function updateAI(s, dt) {
   const head = s.points[0];
+
+  if (s.huntCooldown > 0) s.huntCooldown -= dt;
+  if (s.huntT > 0) {
+    s.huntT -= dt;
+    if (s.huntT <= 0) {
+      s.huntT = 0;
+      s.huntCooldown = rand(s.arch.cooldownMin, s.arch.cooldownMax);
+    }
+  }
 
   s.aiPlanT -= dt;
   if (s.aiPlanT > 0) {
@@ -799,39 +903,66 @@ function updateAI(s, dt) {
 
   const visR = AI_VISION_BASE + s.skill * AI_VISION_SKILL;
   const visR2 = visR * visR;
-  let threatAng = null;
-  let threatD2  = Infinity;
+  let threatAng = null, threatD2 = Infinity;
 
   for (let i = 0; i < snakes.length; i++) {
     const o = snakes[i];
     if (o === s || !o.alive) continue;
-
     const bdx = o.bx - head.x, bdy = o.by - head.y;
     const reach = o.br + visR;
     if (bdx * bdx + bdy * bdy > reach * reach) continue;
-
     const pts = o.points;
     for (let j = 0; j < pts.length; j += 3) {
-      const dx = pts[j].x - head.x;
-      const dy = pts[j].y - head.y;
+      const dx = pts[j].x - head.x, dy = pts[j].y - head.y;
       const d2 = dx * dx + dy * dy;
       if (d2 > visR2) continue;
-
       const a = Math.atan2(dy, dx);
       if (Math.abs(angDiff(a, s.angle)) > AI_FRONT_CONE) continue;
-
       if (d2 < threatD2) { threatD2 = d2; threatAng = a; }
+    }
+  }
+
+  if (player && player.alive) {
+    if (s.huntT > 0 && threatAng !== null &&
+        threatD2 < HUNT_ABORT_DIST * HUNT_ABORT_DIST) {
+      s.huntT = 0;
+      s.huntCooldown = rand(2.0, 4.5);
+    }
+    if (s.huntT <= 0 && s.huntCooldown <= 0 && s.aggression > 0) {
+      const dx = player.x - head.x, dy = player.y - head.y;
+      const d2 = dx * dx + dy * dy;
+      const range = s.huntRange;
+      if (d2 > HUNT_MIN_DIST * HUNT_MIN_DIST && d2 < range * range &&
+          s.points.length > HUNT_MIN_LEN && countActiveHunts() < MAX_ACTIVE_HUNTS) {
+        const relAng = Math.atan2(head.y - player.y, head.x - player.x);
+        const sideOK = Math.abs(angDiff(relAng, player.angle)) < HUNT_SIDE_CONE;
+        if (sideOK) {
+          const aimAng = huntInterceptAngle(s, head);
+          const aimOK  = Math.abs(angDiff(aimAng, s.angle)) < HUNT_AIM_CONE;
+          const chance = s.aggression * (0.55 + 0.45 * s.skill) * 0.55;
+          if (aimOK && Math.random() < chance) {
+            s.huntT = rand(s.arch.huntDurMin, s.arch.huntDurMax);
+            s.huntAng = aimAng;
+          } else {
+            s.huntCooldown = rand(1.2, 3.0);
+          }
+        } else {
+          s.huntCooldown = rand(1.5, 3.5);
+        }
+      }
     }
   }
 
   let target;
   const sees = threatAng !== null && Math.random() < s.skill * 0.85;
 
-  if (sees) {
+  if (s.huntT > 0) {
+    s.huntAng = huntInterceptAngle(s, head);
+    target = s.huntAng;
+  } else if (sees) {
     const panic = Math.random() > s.skill;
-    if (panic) {
-      target = threatAng + Math.PI;
-    } else {
+    if (panic) target = threatAng + Math.PI;
+    else {
       const left  = threatAng + Math.PI * 0.5;
       const right = threatAng - Math.PI * 0.5;
       const dl = Math.abs(angDiff(left,  s.angle));
@@ -849,7 +980,6 @@ function updateAI(s, dt) {
       if (d2 < bestD2) { bestD2 = d2; tx = p.x; ty = p.y; }
     }
     target = Math.atan2(ty - head.y, tx - head.x);
-
     s.wanderT -= s.aiPlanT;
     if (s.wanderT <= 0) {
       s.wanderT = rand(1.2, 3.2);
@@ -859,29 +989,30 @@ function updateAI(s, dt) {
   }
 
   s.aiTargetAng = target;
-
   const d = angDiff(target, s.angle);
   const maxT = s.turnRate * dt * (s.boosting ? BOOST_TURN_PENALTY : 1);
   s.angle += clamp(d, -maxT, maxT);
 
-  s.boostT -= s.aiPlanT;
-  if (s.boostT <= 0) {
-    s.boostT = rand(3, 9);
-    s.willBoost = Math.random() < AI_BOOST_CHANCE && s.points.length > 60;
+  if (s.huntT > 0) {
+    s.boosting = true;
+  } else {
+    s.boostT -= s.aiPlanT;
+    if (s.boostT <= 0) {
+      s.boostT = rand(3, 9);
+      const bc = s.arch ? s.arch.boostChance : AI_BOOST_CHANCE;
+      s.willBoost = Math.random() < bc && s.points.length > 60;
+    }
+    s.boosting = s.willBoost;
   }
-  s.boosting = s.willBoost;
 }
 
 function spawnAI(nearPlayer) {
   const ang = Math.random() * TAU;
-  const dist = nearPlayer
-    ? rand(550, NEARBY_R * 0.85)
-    : rand(500, 1500);
-
+  const dist = nearPlayer ? rand(550, NEARBY_R * 0.85) : rand(500, 1500);
   const x = (player ? player.x : 0) + Math.cos(ang) * dist;
   const y = (player ? player.y : 0) + Math.sin(ang) * dist;
   const key = AI_SKIN_KEYS[(Math.random() * AI_SKIN_KEYS.length) | 0];
-  ais.push(makeSnake(x, y, Math.random() * TAU, key, false));
+  ais.push(makeSnake(x, y, Math.random() * TAU, key, false, pickBotName()));
 }
 
 function countNearbyAI() {
@@ -901,9 +1032,7 @@ function enforceNearbyAI() {
   if (total >= AI_HARD_CAP) return;
   const near = countNearbyAI();
   if (near >= MIN_NEARBY) return;
-  if (respawnQueue.length < 6) {
-    respawnQueue.push(rand(0.35, 0.85));
-  }
+  if (respawnQueue.length < 6) respawnQueue.push(rand(0.35, 0.85));
 }
 
 /* =====================================================================
@@ -912,23 +1041,17 @@ function enforceNearbyAI() {
 function killAI(a) {
   if (!a.alive) return;
   a.alive = false;
-
   const pts = a.points;
   for (let i = 0; i < pts.length; i += 2) {
     const p = pts[i];
     const ang = Math.random() * TAU;
     const sp = rand(50, 240);
-    pellets.push(makePellet(
-      p.x, p.y, a.hue, 2,
-      Math.cos(ang) * sp, Math.sin(ang) * sp,
-      5.2
-    ));
+    pellets.push(makePellet(p.x, p.y, a.hue, 2,
+                            Math.cos(ang) * sp, Math.sin(ang) * sp, 5.2));
   }
   addBurst(pts[0].x, pts[0].y, a.hue, 34);
-
   const idx = ais.indexOf(a);
   if (idx >= 0) ais.splice(idx, 1);
-
   if (!gameOver) respawnQueue.push(rand(1.0, 2.2));
 }
 
@@ -940,20 +1063,15 @@ function killPlayer() {
   player.boosting = false;
   shake = 1.3;
   deathTimer = 0.85;
-
   const pts = player.points;
   for (let i = 0; i < pts.length; i += 2) {
     const p = pts[i];
     const ang = Math.random() * TAU;
     const sp = rand(70, 340);
-    pellets.push(makePellet(
-      p.x, p.y, 48, 4,
-      Math.cos(ang) * sp, Math.sin(ang) * sp,
-      6.4
-    ));
+    pellets.push(makePellet(p.x, p.y, 48, 4,
+                            Math.cos(ang) * sp, Math.sin(ang) * sp, 6.4));
   }
   addBurst(player.x, player.y, 48, 70);
-
   finalLenEl.textContent = pts.length;
   finalPelEl.textContent = pelletsEaten;
 }
@@ -973,7 +1091,6 @@ function checkCollisions() {
     const bdx = o.bx - head.x, bdy = o.by - head.y;
     const rr = o.br + pr + 30;
     if (bdx * bdx + bdy * bdy > rr * rr) continue;
-
     const pts = o.points;
     const rad = pr + o.radius * 0.85;
     const rad2 = rad * rad;
@@ -983,49 +1100,41 @@ function checkCollisions() {
     }
   }
 
-  const killed = new Set();
-
+  const killed = [];
   for (let i = 0; i < ais.length; i++) {
     const a = ais[i];
-    if (!a.alive || killed.has(a)) continue;
-    const ah = a.points[0];
-    const ar = a.radius;
+    if (!a.alive) continue;
+    let dead = false;
+    const ah = a.points[0], ar = a.radius;
 
     for (let k = 0; k < snakes.length; k++) {
       const o = snakes[k];
       if (o === a || !o.alive) continue;
-
       const bdx = o.bx - ah.x, bdy = o.by - ah.y;
       const rr = o.br + ar + 30;
       if (bdx * bdx + bdy * bdy > rr * rr) continue;
-
       const pts = o.points;
       const rad = ar + o.radius * 0.85;
       const rad2 = rad * rad;
       for (let j = 0; j < pts.length; j++) {
         const dx = pts[j].x - ah.x, dy = pts[j].y - ah.y;
-        if (dx * dx + dy * dy < rad2) { killed.add(a); break; }
+        if (dx * dx + dy * dy < rad2) { dead = true; break; }
       }
-      if (killed.has(a)) break;
+      if (dead) break;
     }
-  }
-
-  for (let i = 0; i < ais.length; i++) {
-    const a = ais[i];
-    if (!a.alive || killed.has(a)) continue;
-    for (let j = i + 1; j < ais.length; j++) {
-      const b = ais[j];
-      if (!b.alive || killed.has(b)) continue;
-      const dx = a.x - b.x, dy = a.y - b.y;
-      const rr = a.radius + b.radius;
-      if (dx * dx + dy * dy < rr * rr) {
-        killed.add(a);
-        killed.add(b);
+    if (!dead) {
+      for (let j = i + 1; j < ais.length; j++) {
+        const b = ais[j];
+        if (!b.alive) continue;
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const rr = a.radius + b.radius;
+        if (dx * dx + dy * dy < rr * rr) { dead = true; break; }
       }
     }
+    if (dead) killed.push(a);
   }
 
-  killed.forEach(k => killAI(k));
+  for (let i = 0; i < killed.length; i++) killAI(killed[i]);
 }
 
 /* =====================================================================
@@ -1037,7 +1146,6 @@ function updatePellets(dt) {
 
   for (let i = pellets.length - 1; i >= 0; i--) {
     const p = pellets[i];
-
     if (p.vx !== 0 || p.vy !== 0) {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
@@ -1050,7 +1158,6 @@ function updatePellets(dt) {
 
     const dxp = p.x - player.x, dyp = p.y - player.y;
     const d2p = dxp * dxp + dyp * dyp;
-
     if (d2p > 2600 * 2600) {
       pellets[i] = pellets[pellets.length - 1];
       pellets.pop();
@@ -1058,7 +1165,6 @@ function updatePellets(dt) {
     }
 
     let eaten = false;
-
     if (player.alive) {
       const rr = pr + p.r + EAT_PAD;
       if (d2p < rr * rr) {
@@ -1068,7 +1174,6 @@ function updatePellets(dt) {
         eaten = true;
       }
     }
-
     if (!eaten) {
       for (let k = 0; k < ais.length; k++) {
         const a = ais[k];
@@ -1083,7 +1188,6 @@ function updatePellets(dt) {
         }
       }
     }
-
     if (eaten) {
       pellets[i] = pellets[pellets.length - 1];
       pellets.pop();
@@ -1119,6 +1223,67 @@ function updateParticles(dt) {
   }
 }
 
+/* ---------------------------------------------------------------
+   LEADERBOARD — throttled to ~4 Hz with dirty-check
+   --------------------------------------------------------------- */
+let lbAccum = 0;
+let lbSig = '';
+const LB_INTERVAL = 0.25;
+
+/* Lazily build 3 reusable <li> rows once, then just update text. */
+function ensureLbRows() {
+  if (lbRowEls.length) return;
+  for (let i = 0; i < 3; i++) {
+    const li = document.createElement('li');
+    const rank = document.createElement('span'); rank.className = 'rank';
+    const name = document.createElement('span'); name.className = 'name';
+    const len  = document.createElement('span'); len.className  = 'len';
+    li.appendChild(rank); li.appendChild(name); li.appendChild(len);
+    lbListEl.appendChild(li);
+    lbRowEls.push({ li, rank, name, len });
+  }
+}
+
+function updateLeaderboard(dt) {
+  lbAccum += dt;
+  if (lbAccum < LB_INTERVAL) return;
+  lbAccum = 0;
+
+  // Build top 3 without allocating a new array if possible
+  // (small N — a fresh sort buffer is fine, but we avoid DOM work)
+  const all = [];
+  if (player && player.alive) all.push(player);
+  for (let i = 0; i < ais.length; i++) if (ais[i].alive) all.push(ais[i]);
+  all.sort((a, b) => b.points.length - a.points.length);
+
+  const count = Math.min(3, all.length);
+
+  // Build a lightweight signature to detect changes
+  let sig = '';
+  for (let i = 0; i < count; i++) {
+    const s = all[i];
+    sig += s.id + ':' + s.points.length + '|';
+  }
+  if (sig === lbSig) return;
+  lbSig = sig;
+
+  ensureLbRows();
+
+  for (let i = 0; i < 3; i++) {
+    const row = lbRowEls[i];
+    if (i < count) {
+      const s = all[i];
+      row.li.style.display = '';
+      row.li.classList.toggle('isPlayer', s.isPlayer);
+      row.rank.textContent = String(i + 1);
+      row.name.textContent = s.name;
+      row.len.textContent  = String(s.points.length);
+    } else {
+      row.li.style.display = 'none';
+    }
+  }
+}
+
 function update(dt) {
   if (gameState === 'paused' || gameState === 'menu') return;
 
@@ -1144,11 +1309,16 @@ function update(dt) {
 
   enforceNearbyAI();
 
+  /* Rebuild shared snake list (cheap) */
   snakes.length = 0;
   snakes.push(player);
   for (let i = 0; i < ais.length; i++) if (ais[i].alive) snakes.push(ais[i]);
 
-  for (let i = 0; i < snakes.length; i++) computeBounds(snakes[i]);
+  /* ---- Bounds are only needed for culling. Skip most frames. ---- */
+  for (let i = 0; i < snakes.length; i++) {
+    const s = snakes[i];
+    if (s._boundsDirty) { computeBounds(s); s._boundsDirty = false; }
+  }
 
   /* ---------- PLAYER ---------- */
   if (!gameOver) {
@@ -1156,18 +1326,15 @@ function update(dt) {
     mouse.wy = cam.y + (mouse.sy - H / 2) / zoom;
 
     let desired = null;
-
     let ax = 0, ay = 0;
     if (keys['ArrowLeft'])  ax -= 1;
     if (keys['ArrowRight']) ax += 1;
     if (keys['ArrowUp'])    ay -= 1;
     if (keys['ArrowDown'])  ay += 1;
 
-    if (ax !== 0 || ay !== 0) {
-      desired = Math.atan2(ay, ax);
-    } else {
-      const mdx = mouse.wx - player.x;
-      const mdy = mouse.wy - player.y;
+    if (ax !== 0 || ay !== 0) desired = Math.atan2(ay, ax);
+    else {
+      const mdx = mouse.wx - player.x, mdy = mouse.wy - player.y;
       if (mdx * mdx + mdy * mdy > 64) desired = Math.atan2(mdy, mdx);
     }
 
@@ -1184,6 +1351,8 @@ function update(dt) {
       boostAcc += dt;
       while (boostAcc >= BOOST_SHRINK_DT && player.points.length > 26) {
         player.points.pop();
+        player._pathLenDirty = true;
+        player._boundsDirty = true;
         boostAcc -= BOOST_SHRINK_DT;
       }
       if (Math.random() < 0.5) {
@@ -1208,11 +1377,19 @@ function update(dt) {
       a.shrinkAcc += dt;
       while (a.shrinkAcc >= 0.13 && a.points.length > 26) {
         a.points.pop();
+        a._pathLenDirty = true;
+        a._boundsDirty = true;
         a.shrinkAcc -= 0.13;
       }
     } else {
       a.shrinkAcc = 0;
     }
+  }
+
+  /* Mark bounds dirty for everyone periodically so culling stays fresh */
+  frameCount++;
+  if ((frameCount & 3) === 0) {
+    for (let i = 0; i < snakes.length; i++) snakes[i]._boundsDirty = true;
   }
 
   /* ---------- WORLD ---------- */
@@ -1236,6 +1413,9 @@ function update(dt) {
   hudRivalsEl.textContent = ais.length;
   if (player.boosting) boostTagEl.classList.add('on');
   else boostTagEl.classList.remove('on');
+
+  /* ---------- LEADERBOARD ---------- */
+  updateLeaderboard(dt);
 }
 
 /* =====================================================================
@@ -1251,6 +1431,7 @@ function drawGrid() {
   const y1 = cam.y + halfH;
 
   ctx.lineWidth = 1 / zoom;
+
   ctx.strokeStyle = 'rgba(0,190,255,0.075)';
   ctx.beginPath();
   for (let x = x0; x <= x1; x += gs) { ctx.moveTo(x, y0); ctx.lineTo(x, y1); }
@@ -1274,19 +1455,25 @@ function drawPellets() {
   const x0 = cam.x - halfW, x1 = cam.x + halfW;
   const y0 = cam.y - halfH, y1 = cam.y + halfH;
 
+  const px = player.x, py = player.y;
+  const glowRange2 = 900 * 900;   // only draw the soft outer halo for near pellets
+
   for (let i = 0; i < pellets.length; i++) {
     const p = pellets[i];
     if (p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1) continue;
 
     const pulse = 0.78 + 0.22 * Math.sin(p.phase);
+    const dxp = p.x - px, dyp = p.y - py;
 
-    ctx.globalAlpha = 0.16 * pulse;
-    ctx.fillStyle = `hsl(${p.hue},100%,60%)`;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r * 3.4, 0, TAU);
-    ctx.fill();
+    if (dxp * dxp + dyp * dyp < glowRange2) {
+      ctx.globalAlpha = 0.16 * pulse;
+      ctx.fillStyle = `hsl(${p.hue},100%,60%)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 3.4, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
 
-    ctx.globalAlpha = 1;
     ctx.fillStyle = `hsl(${p.hue},100%,${p.big ? 76 : 70}%)`;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r * pulse, 0, TAU);
@@ -1297,11 +1484,10 @@ function drawPellets() {
     ctx.arc(p.x, p.y, p.r * 0.42 * pulse, 0, TAU);
     ctx.fill();
   }
-  ctx.globalAlpha = 1;
 }
 
 /* ---------------------------------------------------------------------
-   Pattern overlays
+   Pattern overlays  —  identical look, no shadow blur
    --------------------------------------------------------------------- */
 function drawPattern(s, totalLen) {
   const skin = s.skin;
@@ -1325,8 +1511,6 @@ function drawPattern(s, totalLen) {
     if (x < vx0 || x > vx1 || y < vy0 || y > vy1) return;
 
     switch (type) {
-
-      /* --- clean Star of David, drawn upright relative to the body --- */
       case 'israel': {
         const sr = r * 0.82;
         ctx.save();
@@ -1336,27 +1520,21 @@ function drawPattern(s, totalLen) {
         ctx.lineWidth = r * 0.13;
         ctx.lineJoin = 'round';
         ctx.lineCap  = 'round';
-
-        /* Upward-pointing triangle */
         ctx.beginPath();
         ctx.moveTo(0, -sr);
         ctx.lineTo( sr * 0.866, sr * 0.5);
         ctx.lineTo(-sr * 0.866, sr * 0.5);
         ctx.closePath();
         ctx.stroke();
-
-        /* Downward-pointing triangle */
         ctx.beginPath();
         ctx.moveTo(0, sr);
         ctx.lineTo( sr * 0.866, -sr * 0.5);
         ctx.lineTo(-sr * 0.866, -sr * 0.5);
         ctx.closePath();
         ctx.stroke();
-
         ctx.restore();
         break;
       }
-
       case 'chevron': {
         ctx.save();
         ctx.translate(x, y);
@@ -1372,7 +1550,6 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'band': {
         ctx.save();
         ctx.translate(x, y);
@@ -1383,7 +1560,6 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'diamond': {
         ctx.save();
         ctx.translate(x, y);
@@ -1400,7 +1576,6 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'dot': {
         const px = -Math.sin(ang), py = Math.cos(ang);
         const off = r * 0.45;
@@ -1413,7 +1588,6 @@ function drawPattern(s, totalLen) {
         ctx.fill();
         break;
       }
-
       case 'rib': {
         ctx.save();
         ctx.translate(x, y);
@@ -1427,7 +1601,6 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'star': {
         const tw = 0.55 + 0.45 * Math.sin(phase + gameTime * 2.5 + L * 0.06);
         ctx.save();
@@ -1454,7 +1627,6 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'ray': {
         ctx.save();
         ctx.translate(x, y);
@@ -1470,16 +1642,14 @@ function drawPattern(s, totalLen) {
         ctx.restore();
         break;
       }
-
       case 'circuit': {
-        const mod = idx % 4;
+        const mod = idx & 3;
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(ang);
         ctx.strokeStyle = col;
         ctx.fillStyle = col;
         ctx.lineWidth = r * 0.10;
-
         if (mod === 0) {
           ctx.fillRect(-r * 0.18, -r * 0.18, r * 0.36, r * 0.36);
         } else {
@@ -1503,6 +1673,10 @@ function drawPattern(s, totalLen) {
   });
 }
 
+/* ---------------------------------------------------------------------
+   drawSnake  —  glow is now built from layered translucent strokes
+   instead of canvas shadowBlur, which is ~10-30x cheaper on long paths.
+   --------------------------------------------------------------------- */
 function drawSnake(s) {
   const pts = s.points;
   const n = pts.length;
@@ -1520,33 +1694,45 @@ function drawSnake(s) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  /* --- base path --- */
+  /* Build the body path once, reuse it for every stroke pass */
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
 
-  /* --- GOLD AURA (Israel skin) --- */
+  /* --- layered fake-glow (no shadowBlur) --- */
+  ctx.strokeStyle = skin.glow;
+  ctx.globalAlpha = 0.10;
+  ctx.lineWidth = r * 5.0;
+  ctx.stroke();
+  ctx.globalAlpha = 0.20;
+  ctx.lineWidth = r * 3.6;
+  ctx.stroke();
+  ctx.globalAlpha = 0.30;
+  ctx.lineWidth = r * 2.6;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  /* --- GOLD AURA for Israel (only one snake has it — safe to shadow) --- */
   if (skin.aura === 'gold') {
     const pulse = 0.85 + 0.15 * Math.sin(gameTime * 2.8);
-    ctx.shadowBlur = 55 * pulse;
+    ctx.shadowBlur = 45 * pulse;
     ctx.shadowColor = '#ffd700';
-    ctx.strokeStyle = 'rgba(255,205,30,0.30)';
-    ctx.lineWidth = r * 4.4;
-    ctx.stroke();
-    ctx.shadowBlur = 32 * pulse;
-    ctx.shadowColor = '#ffe45c';
-    ctx.strokeStyle = 'rgba(255,230,90,0.55)';
-    ctx.lineWidth = r * 2.9;
+    ctx.strokeStyle = 'rgba(255,215,60,0.45)';
+    ctx.lineWidth = r * 2.2;
     ctx.stroke();
     ctx.shadowBlur = 0;
   }
 
-  /* --- outer glow --- */
-  ctx.shadowBlur = 30;
-  ctx.shadowColor = skin.glow;
-  ctx.strokeStyle = skin.glowSoft;
-  ctx.lineWidth = r * 2.35;
-  ctx.stroke();
+  /* --- hunt aura (cheap translucent strokes) --- */
+  if (s.huntT > 0) {
+    const p = 0.65 + 0.35 * Math.sin(gameTime * 16);
+    ctx.strokeStyle = `rgba(255,60,90,${0.20 + 0.18 * p})`;
+    ctx.lineWidth = r * 3.6;
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255,120,140,${0.28 + 0.22 * p})`;
+    ctx.lineWidth = r * 2.1;
+    ctx.stroke();
+  }
 
   /* --- body gradient --- */
   const hx = pts[0].x, hy = pts[0].y;
@@ -1560,7 +1746,6 @@ function drawSnake(s) {
   grd.addColorStop(0.45, skin.c1);
   grd.addColorStop(1.00, skin.c2);
 
-  ctx.shadowBlur = 0;
   ctx.strokeStyle = grd;
   ctx.lineWidth = r * 1.85;
   ctx.stroke();
@@ -1574,8 +1759,8 @@ function drawSnake(s) {
   }
 
   /* --- pattern overlay --- */
-  const totalLen = pathLength(pts);
-  drawPattern(s, totalLen);
+  if (s._pathLenDirty) { s._pathLen = pathLength(pts); s._pathLenDirty = false; }
+  drawPattern(s, s._pathLen);
 
   /* --- bright core line --- */
   ctx.strokeStyle = skin.core;
@@ -1585,21 +1770,19 @@ function drawSnake(s) {
   for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
 
-  /* --- head --- */
-  ctx.shadowBlur = 30;
+  /* --- head (small shadow is fine, it's just a circle) --- */
+  ctx.shadowBlur = 18;
   ctx.shadowColor = skin.headGlow;
   ctx.fillStyle = skin.head;
   ctx.beginPath();
   ctx.arc(hx, hy, r * 1.28, 0, TAU);
   ctx.fill();
-
   ctx.shadowBlur = 0;
 
   /* --- eyes --- */
   const ex = Math.cos(s.angle), ey = Math.sin(s.angle);
   const px = -ey, py = ex;
   const ef = r * 0.42, es = r * 0.50;
-
   const e1x = hx + ex * ef + px * es, e1y = hy + ey * ef + py * es;
   const e2x = hx + ex * ef - px * es, e2y = hy + ey * ef - py * es;
 
@@ -1612,10 +1795,56 @@ function drawSnake(s) {
   ctx.beginPath(); ctx.arc(e2x - r * 0.07, e2y - r * 0.07, r * 0.08, 0, TAU); ctx.fill();
 }
 
+/* Batch name rendering: set the font ONCE per group (bots, then player). */
+function drawNames() {
+  const halfW = W / (2 * zoom) + 40;
+  const halfH = H / (2 * zoom) + 40;
+  const x0 = cam.x - halfW, x1 = cam.x + halfW;
+  const y0 = cam.y - halfH, y1 = cam.y + halfH;
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.lineJoin = 'round';
+
+  const fs = (12 / zoom);
+  const strokeW = 3.5 / zoom;
+
+  /* --- bots --- */
+  ctx.font = '600 ' + fs + 'px "Courier New", monospace';
+  ctx.lineWidth = strokeW;
+  ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+  ctx.fillStyle = 'rgba(190,235,255,0.78)';
+
+  for (let i = 0; i < ais.length; i++) {
+    const s = ais[i];
+    if (!s.alive) continue;
+    const h = s.points[0];
+    if (h.x < x0 || h.x > x1 || h.y < y0 || h.y > y1) continue;
+    const y = h.y - s.radius * 1.65;
+    ctx.strokeText(s.name, h.x, y);
+    ctx.fillText(s.name, h.x, y);
+  }
+
+  /* --- player --- */
+  if (player && player.alive) {
+    const h = player.points[0];
+    if (h.x >= x0 && h.x <= x1 && h.y >= y0 && h.y <= y1) {
+      ctx.font = '700 ' + fs + 'px "Courier New", monospace';
+      ctx.lineWidth = strokeW;
+      ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+      ctx.fillStyle = '#fff3b0';
+      const y = h.y - player.radius * 1.65;
+      ctx.strokeText(player.name, h.x, y);
+      ctx.fillText(player.name, h.x, y);
+    }
+  }
+}
+
 function drawParticles() {
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
-    const a = Math.max(0, p.life / p.maxLife);
+    const a = p.life / p.maxLife;
+    if (a <= 0) continue;
     ctx.globalAlpha = a * 0.9;
     ctx.fillStyle = `hsl(${p.hue},100%,70%)`;
     ctx.beginPath();
@@ -1648,6 +1877,7 @@ function render() {
   for (let i = 0; i < ais.length; i++) if (ais[i].alive) drawSnake(ais[i]);
   if (player && player.alive) drawSnake(player);
 
+  drawNames();
   drawParticles();
 
   ctx.restore();
@@ -1665,6 +1895,8 @@ function render() {
 /* =====================================================================
    GAME FLOW
    ===================================================================== */
+let frameCount = 0;
+
 function initGame() {
   cam.x = 0; cam.y = 0;
   zoom = 1; zoomTarget = 1;
@@ -1677,18 +1909,19 @@ function initGame() {
   gameTime = 0;
   nextId = 0;
 
+  botNamePool = [];
+
   pellets.length = 0;
   particles.length = 0;
   ais.length = 0;
   respawnQueue.length = 0;
 
-  player = makeSnake(0, 0, 0, selectedSkinKey, true);
+  player = makeSnake(0, 0, 0, selectedSkinKey, true, playerName);
 
   snakes.length = 0;
   snakes.push(player);
 
   for (let i = 0; i < MAX_AI; i++) spawnAI(false);
-
   for (let i = 0; i < PELLET_TARGET; i++) spawnAmbientPellet();
 
   mouse.sx = W / 2 + 260;
@@ -1699,6 +1932,10 @@ function initGame() {
   overEl.classList.remove('show');
   pauseEl.classList.remove('show');
   boostTagEl.classList.remove('on');
+
+  /* reset leaderboard cache so it repaints on start */
+  lbSig = '';
+  lbAccum = LB_INTERVAL;
 }
 
 function startGame() {
@@ -1707,6 +1944,7 @@ function startGame() {
   menuEl.classList.remove('show');
   pauseEl.classList.remove('show');
   overEl.classList.remove('show');
+  leaderboardEl.classList.add('show');
 }
 
 function goToMenu() {
@@ -1715,6 +1953,7 @@ function goToMenu() {
   menuEl.classList.add('show');
   pauseEl.classList.remove('show');
   overEl.classList.remove('show');
+  leaderboardEl.classList.remove('show');
 }
 
 function togglePause() {
@@ -1765,14 +2004,11 @@ function buildSkinMenu() {
   });
 }
 
-/* Unlock the hidden Israel skin */
 function unlockIsrael() {
   if (israelUnlocked) return;
   israelUnlocked = true;
   SELECTABLE_SKINS = ['circuit', 'israel'].concat(BASE_SELECTABLE.slice(1));
-  /* Selected skin stays the same; rebuild menu */
   buildSkinMenu();
-  /* Auto-select Israel on reveal for extra delight */
   selectedSkinKey = 'israel';
   buildSkinMenu();
 }
@@ -1781,32 +2017,31 @@ function unlockIsrael() {
    INPUT
    ===================================================================== */
 window.addEventListener('keydown', (e) => {
-  /* Prevent page scroll */
-  if (e.code === 'Space' ||
-      e.code === 'ArrowUp' || e.code === 'ArrowDown' ||
-      e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
-    e.preventDefault();
+  const isTyping = (document.activeElement === nameInputEl);
+
+  if (!isTyping) {
+    if (e.code === 'Space' ||
+        e.code === 'ArrowUp' || e.code === 'ArrowDown' ||
+        e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+      e.preventDefault();
+    }
   }
 
-  /* ESC handling */
   if (e.code === 'Escape') {
-    if (gameState === 'playing') {
-      togglePause();
-    } else if (gameState === 'paused') {
-      togglePause();
-    } else if (gameState === 'gameover') {
-      goToMenu();
-    }
+    if (isTyping) { nameInputEl.blur(); return; }
+    if (gameState === 'playing') togglePause();
+    else if (gameState === 'paused') togglePause();
+    else if (gameState === 'gameover') goToMenu();
     return;
   }
 
-  /* Secret unlock in the main menu */
-  if (e.code === 'KeyS' && gameState === 'menu') {
+  if (e.code === 'KeyS' && gameState === 'menu' && !isTyping) {
     unlockIsrael();
     return;
   }
 
   if (e.repeat) return;
+  if (isTyping) return;
   keys[e.code] = true;
 
   if (gameState === 'gameover' &&
@@ -1814,6 +2049,7 @@ window.addEventListener('keydown', (e) => {
     initGame();
     gameState = 'playing';
     overEl.classList.remove('show');
+    leaderboardEl.classList.add('show');
   }
 });
 
@@ -1844,14 +2080,37 @@ window.addEventListener('touchmove', (e) => {
   if (t) { mouse.sx = t.clientX; mouse.sy = t.clientY; }
 }, { passive: true });
 
+/* ---------- NAME INPUT ---------- */
+function commitPlayerName() {
+  const v = nameInputEl.value.trim();
+  playerName = v ? v.slice(0, 16) : 'YOU';
+  nameInputEl.value = playerName;
+}
+nameInputEl.addEventListener('input', () => {
+  const v = nameInputEl.value.trim();
+  playerName = v ? v.slice(0, 16) : 'YOU';
+});
+nameInputEl.addEventListener('blur', commitPlayerName);
+nameInputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    commitPlayerName();
+    nameInputEl.blur();
+  }
+});
+
 /* ---------- BUTTONS ---------- */
-document.getElementById('playBtn').addEventListener('click', startGame);
+document.getElementById('playBtn').addEventListener('click', () => {
+  commitPlayerName();
+  startGame();
+});
 
 document.getElementById('restartBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   initGame();
   gameState = 'playing';
   overEl.classList.remove('show');
+  leaderboardEl.classList.add('show');
 });
 
 document.getElementById('overMenuBtn').addEventListener('click', (e) => {
@@ -1867,6 +2126,7 @@ document.getElementById('pauseRestartBtn').addEventListener('click', () => {
   initGame();
   gameState = 'playing';
   pauseEl.classList.remove('show');
+  leaderboardEl.classList.add('show');
 });
 
 document.getElementById('pauseMenuBtn').addEventListener('click', () => {
@@ -1894,8 +2154,8 @@ function loop(now) {
    BOOT
    ===================================================================== */
 buildSkinMenu();
-initGame();          /* pre-populate the world for a live menu background */
-gameState = 'menu';  /* but stay in menu until Play */
+initGame();
+gameState = 'menu';
 requestAnimationFrame(loop);
 
 })();
