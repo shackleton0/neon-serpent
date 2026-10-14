@@ -17,7 +17,6 @@
   }
   canvas { display: block; position: fixed; inset: 0; }
 
-  /* ---------- HUD ---------- */
   #hud {
     position: fixed; top: 0; left: 0;
     padding: 20px 26px;
@@ -48,13 +47,12 @@
     color: #4fd8ff; opacity: .32;
   }
 
-  /* ---------- LEADERBOARD (TOP 3) ---------- */
   #leaderboard {
     position: fixed;
     top: 20px; right: 20px;
     width: 220px;
     padding: 14px 16px 12px;
-    background: rgba(4,10,22,.68);
+    background: rgba(4,10,22,.86);
     border: 1px solid rgba(0,180,255,.28);
     border-radius: 4px;
     color: #a8e4ff;
@@ -62,43 +60,28 @@
     z-index: 5;
     pointer-events: none;
     display: none;
-    backdrop-filter: blur(2px);
   }
   #leaderboard.show { display: block; }
   #leaderboard h3 {
     margin: 0 0 10px;
-    font-size: 10px;
-    letter-spacing: 5px;
-    color: #8fd8ff;
-    opacity: .75;
-    text-align: center;
-    font-weight: 700;
+    font-size: 10px; letter-spacing: 5px;
+    color: #8fd8ff; opacity: .75;
+    text-align: center; font-weight: 700;
   }
-  #lbList {
-    list-style: none;
-    margin: 0; padding: 0;
-  }
+  #lbList { list-style: none; margin: 0; padding: 0; }
   #lbList li {
     display: grid;
     grid-template-columns: 18px 1fr auto;
-    gap: 8px;
-    align-items: baseline;
+    gap: 8px; align-items: baseline;
     padding: 5px 0;
-    font-size: 12px;
-    letter-spacing: 1px;
-    color: #7fb8d8;
-    opacity: .85;
+    font-size: 12px; letter-spacing: 1px;
+    color: #7fb8d8; opacity: .85;
   }
   #lbList li .rank { color: #4fd8ff; opacity: .55; font-size: 10px; }
-  #lbList li .name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  #lbList li .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #lbList li .len { opacity: .9; font-weight: 700; }
   #lbList li.isPlayer {
-    color: #fff3b0;
-    opacity: 1;
+    color: #fff3b0; opacity: 1;
     text-shadow: 0 0 8px rgba(255,200,0,.8), 0 0 18px rgba(255,140,0,.5);
   }
   #lbList li.isPlayer .rank { color: #ffd23c; opacity: .9; }
@@ -106,7 +89,6 @@
   #lbList li:nth-child(2) .rank { color: #cfd8e0; opacity: .85; }
   #lbList li:nth-child(3) .rank { color: #d08a4a; opacity: .85; }
 
-  /* ---------- Shared overlay base ---------- */
   .overlay {
     position: fixed; inset: 0;
     display: flex; align-items: center; justify-content: center;
@@ -116,7 +98,6 @@
   }
   .overlay.show { opacity: 1; pointer-events: auto; }
 
-  /* ---------- GAME OVER ---------- */
   #over {
     background: radial-gradient(circle at 50% 45%, rgba(30,0,60,.55), rgba(0,0,0,.88));
   }
@@ -141,9 +122,7 @@
   }
   .scores { display: flex; gap: 46px; justify-content: center; margin-bottom: 32px; }
   .scores > div { display: flex; flex-direction: column; gap: 6px; }
-  .scores span {
-    font-size: 38px; font-weight: 700; color: #eaffff;
-  }
+  .scores span { font-size: 38px; font-weight: 700; color: #eaffff; }
   .scores small { font-size: 9px; letter-spacing: 4px; color: #6ab8d8; }
 
   .btn {
@@ -164,20 +143,14 @@
   }
   .btn:active { transform: translateY(0) scale(.97); }
   .btn.ghost {
-    background: transparent;
-    color: #7fdcff;
+    background: transparent; color: #7fdcff;
     border: 1px solid rgba(127,220,255,.6);
     box-shadow: 0 0 12px rgba(0,180,255,.25);
   }
-  .btn.ghost:hover {
-    color: #eaffff;
-    border-color: #aef3ff;
-    box-shadow: 0 0 20px rgba(0,220,255,.6);
-  }
+  .btn.ghost:hover { color: #eaffff; border-color: #aef3ff; box-shadow: 0 0 20px rgba(0,220,255,.6); }
 
   .hint { margin: 20px 0 0; font-size: 9px; letter-spacing: 3px; color: #6a5a80; }
 
-  /* ---------- START MENU ---------- */
   #menu {
     background: radial-gradient(circle at 50% 40%, rgba(20,0,55,.72), rgba(0,0,0,.92));
     overflow-y: auto;
@@ -193,8 +166,7 @@
       inset 0 0 60px rgba(0,120,255,.08),
       0 0 110px rgba(120,0,255,.30);
     animation: pop .35s cubic-bezier(.2,1.4,.5,1);
-    max-width: 92vw;
-    max-height: 94vh;
+    max-width: 92vw; max-height: 94vh;
   }
   .menu-panel h1 {
     margin: 0 0 4px;
@@ -219,8 +191,7 @@
   }
   .skin-card {
     display: flex; flex-direction: column; align-items: center;
-    gap: 8px;
-    padding: 10px 6px 8px;
+    gap: 8px; padding: 10px 6px 8px;
     border: 1px solid rgba(0,180,255,.22);
     border-radius: 3px;
     background: rgba(4,10,22,.6);
@@ -237,25 +208,20 @@
     transform: translateY(-2px);
   }
   .skin-swatch {
-    width: 62px; height: 22px;
-    border-radius: 11px;
+    width: 62px; height: 22px; border-radius: 11px;
     box-shadow: 0 0 12px currentColor;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .skin-swatch::after {
     content: '';
     position: absolute; left: 6px; right: 6px; top: 50%;
     height: 2px; margin-top: -1px;
-    background: rgba(255,255,255,.55);
-    border-radius: 1px;
+    background: rgba(255,255,255,.55); border-radius: 1px;
   }
   .skin-card.secret .skin-swatch {
     box-shadow: 0 0 16px currentColor, 0 0 32px rgba(255,215,0,.6);
   }
-  .skin-card.secret {
-    animation: revealSecret .5s cubic-bezier(.2,1.5,.5,1);
-  }
+  .skin-card.secret { animation: revealSecret .5s cubic-bezier(.2,1.5,.5,1); }
   @keyframes revealSecret {
     from { transform: scale(.4) rotate(-20deg); opacity: 0; }
     to   { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -266,21 +232,14 @@
   }
   .skin-card.selected .skin-name { color: #ffe98a; }
 
-  /* ---------- NAME INPUT ---------- */
   #nameInput {
-    font-family: inherit;
-    font-size: 14px;
-    letter-spacing: 4px;
+    font-family: inherit; font-size: 14px; letter-spacing: 4px;
     padding: 11px 16px;
     background: rgba(4,10,22,.8);
     border: 1px solid rgba(0,180,255,.4);
     border-radius: 3px;
-    color: #d8ffff;
-    text-align: center;
-    outline: none;
-    width: 280px;
-    max-width: 80vw;
-    margin-bottom: 22px;
+    color: #d8ffff; text-align: center; outline: none;
+    width: 280px; max-width: 80vw; margin-bottom: 22px;
     text-shadow: 0 0 8px rgba(0,229,255,.6);
     transition: border-color .15s, box-shadow .15s;
   }
@@ -288,27 +247,19 @@
     border-color: #00e5ff;
     box-shadow: 0 0 16px rgba(0,220,255,.5), inset 0 0 8px rgba(0,200,255,.15);
   }
-  #nameInput::placeholder {
-    color: #3d5a7a;
-    letter-spacing: 4px;
-  }
+  #nameInput::placeholder { color: #3d5a7a; letter-spacing: 4px; }
 
   .menu-controls {
     margin: 22px 0 0;
-    font-size: 9px; letter-spacing: 2px; color: #5c7a9a;
-    line-height: 1.9;
+    font-size: 9px; letter-spacing: 2px; color: #5c7a9a; line-height: 1.9;
   }
   .menu-secret-hint {
     margin: 16px 0 0;
-    font-size: 8px; letter-spacing: 3px;
-    color: #3a4a5c;
-    opacity: .8;
+    font-size: 8px; letter-spacing: 3px; color: #3a4a5c; opacity: .8;
   }
 
-  /* ---------- PAUSE ---------- */
   #pause {
     background: radial-gradient(circle at 50% 50%, rgba(0,20,40,.55), rgba(0,0,0,.85));
-    backdrop-filter: blur(2px);
   }
   .pause-panel {
     text-align: center;
@@ -328,6 +279,44 @@
     text-shadow: 0 0 12px #00d8ff, 0 0 40px #0088ff;
   }
   .pause-panel .btn { display: block; width: 100%; margin: 8px 0; }
+
+  #qualTag {
+    position: fixed; bottom: 8px; right: 12px;
+    font-size: 9px; letter-spacing: 2px;
+    color: #3a5a7a; opacity: .5;
+    pointer-events: none; z-index: 5;
+    display: none;
+  }
+  #qualTag.show { display: block; }
+
+  /* ---------- DEBUG FPS OVERLAY (toggle with 8) ---------- */
+  #fpsTag {
+    position: fixed;
+    bottom: 8px; left: 12px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,.72);
+    border: 1px solid rgba(0,255,140,.45);
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: #7affc4;
+    line-height: 1.55;
+    min-width: 108px;
+    z-index: 6;
+    pointer-events: none;
+    display: none;
+  }
+  #fpsTag.show { display: block; }
+  #fpsTag .lbl { opacity: .55; }
+  #fpsTag .val { color: #d8ffff; font-weight: 700; }
+  #fpsTag .hdr {
+    font-size: 9px; letter-spacing: 3px;
+    color: #7affc4; opacity: .7;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(0,255,140,.2);
+    padding-bottom: 3px;
+  }
 </style>
 </head>
 <body>
@@ -346,6 +335,9 @@
   <ol id="lbList"></ol>
 </div>
 
+<div id="qualTag">QUALITY: HIGH</div>
+<div id="fpsTag"></div>
+
 <div id="menu" class="overlay show">
   <div class="menu-panel">
     <h1>NEON SERPENT</h1>
@@ -357,7 +349,7 @@
     <button class="btn" id="playBtn">PLAY</button>
     <p class="menu-controls">
       MOVE ▸ MOUSE OR ARROW KEYS · BOOST ▸ SPACE / RIGHT-CLICK<br>
-      PAUSE ▸ ESC
+      PAUSE ▸ ESC &nbsp;·&nbsp; DEBUG FPS ▸ 8
     </p>
     <p class="menu-secret-hint">PRESS S</p>
   </div>
@@ -391,6 +383,21 @@
 "use strict";
 
 /* =====================================================================
+   ADAPTIVE QUALITY
+   ===================================================================== */
+const QUALITY = [
+  { dpr: 1.00, glowLayers: 0, haloRange: 0,   maxParticles: 120, name: 'LOW'   },
+  { dpr: 1.25, glowLayers: 2, haloRange: 450, maxParticles: 280, name: 'MED'   },
+  { dpr: 1.50, glowLayers: 3, haloRange: 700, maxParticles: 420, name: 'HIGH'  },
+  { dpr: 2.00, glowLayers: 4, haloRange: 900, maxParticles: 600, name: 'ULTRA' }
+];
+
+let qualityLevel = 2;
+let maxParticles  = QUALITY[qualityLevel].maxParticles;
+let haloRange2    = QUALITY[qualityLevel].haloRange * QUALITY[qualityLevel].haloRange;
+let glowLayers    = QUALITY[qualityLevel].glowLayers;
+
+/* =====================================================================
    SETUP
    ===================================================================== */
 const canvas = document.getElementById('cv');
@@ -408,15 +415,18 @@ const finalPelEl  = document.getElementById('finalPel');
 const leaderboardEl = document.getElementById('leaderboard');
 const lbListEl      = document.getElementById('lbList');
 const nameInputEl   = document.getElementById('nameInput');
+const qualTagEl     = document.getElementById('qualTag');
+const fpsTagEl      = document.getElementById('fpsTag');
 
-/* Perf scratch buffers — reused every frame to avoid GC churn */
-const lbRowEls = [];   // 3 reusable <li> rows
+const lbRowEls = [];
 
 let W = 0, H = 0, DPR = 1;
 let vignette = null;
 
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const deviceDPR = window.devicePixelRatio || 1;
+  DPR = Math.min(deviceDPR, QUALITY[qualityLevel].dpr);
+
   W = window.innerWidth;
   H = window.innerHeight;
   canvas.width  = Math.floor(W * DPR);
@@ -431,8 +441,19 @@ function resize() {
   g.addColorStop(1, 'rgba(0,0,0,0.85)');
   vignette = g;
 }
+
+function applyQuality() {
+  const q = QUALITY[qualityLevel];
+  maxParticles = q.maxParticles;
+  haloRange2   = q.haloRange * q.haloRange;
+  glowLayers   = q.glowLayers;
+  resize();
+  qualTagEl.textContent = 'QUALITY: ' + q.name;
+}
+
 window.addEventListener('resize', resize);
 resize();
+qualTagEl.classList.add('show');
 
 /* =====================================================================
    HELPERS
@@ -450,6 +471,75 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[c]);
+}
+
+/* =====================================================================
+   DEBUG FPS OVERLAY
+   ===================================================================== */
+const FPS_HISTORY = 30;
+let fpsVisible = false;
+let fpsFrameAccum = 0;      // seconds accumulated in this sample window
+let fpsFrameCount = 0;
+let fpsSampleAccum = 0;     // time since last display update
+let fpsCurrent = 0;
+let fpsMin = Infinity;
+let fpsMax = 0;
+const fpsHistory = [];
+
+function resetFpsStats() {
+  fpsFrameAccum = 0;
+  fpsFrameCount = 0;
+  fpsSampleAccum = 0;
+  fpsCurrent = 0;
+  fpsMin = Infinity;
+  fpsMax = 0;
+  fpsHistory.length = 0;
+}
+
+function trackFps(dt) {
+  if (!fpsVisible) return;
+  fpsFrameAccum += dt;
+  fpsFrameCount++;
+  fpsSampleAccum += dt;
+
+  // refresh the display ~4 times a second
+  if (fpsSampleAccum < 0.25 || fpsFrameAccum <= 0) return;
+
+  const fps = fpsFrameCount / fpsFrameAccum;
+  fpsCurrent = fps;
+  if (fps < fpsMin) fpsMin = fps;
+  if (fps > fpsMax) fpsMax = fps;
+
+  fpsHistory.push(fps);
+  if (fpsHistory.length > FPS_HISTORY) fpsHistory.shift();
+
+  let sum = 0;
+  for (let i = 0; i < fpsHistory.length; i++) sum += fpsHistory[i];
+  const avg = sum / fpsHistory.length;
+
+  const col = fps >= 55 ? '#7affc4' : fps >= 40 ? '#ffd23c' : '#ff5c8a';
+
+  fpsTagEl.innerHTML =
+    '<div class="hdr">PERF</div>' +
+    '<div><span class="lbl">FPS </span><span class="val" style="color:' + col + '">' +
+      fps.toFixed(0) + '</span></div>' +
+    '<div><span class="lbl">AVG </span><span class="val">' + avg.toFixed(0) + '</span></div>' +
+    '<div><span class="lbl">MIN </span><span class="val">' +
+      (fpsMin === Infinity ? '-' : fpsMin.toFixed(0)) + '</span></div>' +
+    '<div><span class="lbl">MAX </span><span class="val">' +
+      (fpsMax === 0 ? '-' : fpsMax.toFixed(0)) + '</span></div>' +
+    '<div><span class="lbl">Q   </span><span class="val">' +
+      QUALITY[qualityLevel].name + '</span></div>';
+
+  fpsFrameAccum = 0;
+  fpsFrameCount = 0;
+  fpsSampleAccum = 0;
+}
+
+function toggleFps() {
+  fpsVisible = !fpsVisible;
+  fpsTagEl.classList.toggle('show', fpsVisible);
+  if (fpsVisible) resetFpsStats();
 }
 
 /* =====================================================================
@@ -664,6 +754,48 @@ let gameTime = 0;
 let nextId = 0;
 
 /* =====================================================================
+   PELLET SPRITES
+   ===================================================================== */
+const PSPR_SIZE = 64;
+const PSPR_BODY_R = 4;
+const PSPR_HALO_R = 14;
+const pelletSprites = Object.create(null);
+
+function makePelletSprite(hue) {
+  const c = document.createElement('canvas');
+  c.width = PSPR_SIZE;
+  c.height = PSPR_SIZE;
+  const cx = c.getContext('2d');
+  const center = PSPR_SIZE / 2;
+
+  const grad = cx.createRadialGradient(center, center, PSPR_BODY_R,
+                                       center, center, PSPR_HALO_R);
+  grad.addColorStop(0,    `hsla(${hue},100%,60%,0.30)`);
+  grad.addColorStop(0.55, `hsla(${hue},100%,60%,0.13)`);
+  grad.addColorStop(1,    `hsla(${hue},100%,60%,0)`);
+  cx.fillStyle = grad;
+  cx.fillRect(0, 0, PSPR_SIZE, PSPR_SIZE);
+
+  cx.fillStyle = `hsl(${hue},100%,72%)`;
+  cx.beginPath();
+  cx.arc(center, center, PSPR_BODY_R, 0, TAU);
+  cx.fill();
+
+  cx.fillStyle = 'rgba(255,255,255,0.9)';
+  cx.beginPath();
+  cx.arc(center, center, PSPR_BODY_R * 0.42, 0, TAU);
+  cx.fill();
+
+  return c;
+}
+
+function getPelletSprite(hue) {
+  let s = pelletSprites[hue];
+  if (!s) { s = makePelletSprite(hue); pelletSprites[hue] = s; }
+  return s;
+}
+
+/* =====================================================================
    PATH UTILITIES
    ===================================================================== */
 function pathLength(pts) {
@@ -671,7 +803,7 @@ function pathLength(pts) {
   for (let i = 1; i < pts.length; i++) {
     const dx = pts[i].x - pts[i - 1].x;
     const dy = pts[i].y - pts[i - 1].y;
-    L += Math.hypot(dx, dy);
+    L += Math.sqrt(dx * dx + dy * dy);
   }
   return L;
 }
@@ -684,7 +816,7 @@ function walkPath(pts, step, cb) {
   for (let i = 1; i < n; i++) {
     const a = pts[i - 1], b = pts[i];
     const dx = b.x - a.x, dy = b.y - a.y;
-    const seg = Math.hypot(dx, dy);
+    const seg = Math.sqrt(dx * dx + dy * dy);
     if (seg < 0.0001) continue;
     const ux = dx / seg, uy = dy / seg;
     const ang = Math.atan2(uy, ux);
@@ -708,7 +840,7 @@ function strokeOffsetPath(pts, offset, color, width) {
     if (i === 0) { tx = pts[1].x - pts[0].x; ty = pts[1].y - pts[0].y; }
     else if (i === n - 1) { tx = pts[i].x - pts[i-1].x; ty = pts[i].y - pts[i-1].y; }
     else { tx = pts[i+1].x - pts[i-1].x; ty = pts[i+1].y - pts[i-1].y; }
-    const len = Math.hypot(tx, ty) || 1;
+    const len = Math.sqrt(tx*tx + ty*ty) || 1;
     const nx = -ty / len, ny = tx / len;
     const x = pts[i].x + nx * offset;
     const y = pts[i].y + ny * offset;
@@ -751,13 +883,9 @@ function makeSnake(x, y, angle, skinKey, isPlayer, name) {
     baseSpeed: isPlayer ? PLAYER_SPEED : AI_SPEED,
     bx: x, by: y, br: 120,
     skill: isPlayer ? 1 : rand(arch.skillMin, arch.skillMax),
-
-    /* --- perf caches (updated every N frames) --- */
     _pathLen: 0,
     _pathLenDirty: true,
-    _boundsDirty: true,
 
-    /* --- AI personality --- */
     arch: arch,
     aggression: isPlayer ? 0 : arch.aggression,
     huntRange: isPlayer ? 0 : arch.huntRange,
@@ -789,7 +917,7 @@ function addSegment(s) {
   if (n < 2) return;
   const a = pts[n - 1], b = pts[n - 2];
   let dx = a.x - b.x, dy = a.y - b.y;
-  const d = Math.hypot(dx, dy) || 1;
+  const d = Math.sqrt(dx*dx + dy*dy) || 1;
   pts.push({ x: a.x + dx / d * s.spacing, y: a.y + dy / d * s.spacing });
   s._pathLenDirty = true;
 }
@@ -848,8 +976,10 @@ function spawnAmbientPellet() {
 }
 
 function addBurst(x, y, hue, count) {
-  if (particles.length > 600) return;
-  for (let i = 0; i < count; i++) {
+  if (particles.length >= maxParticles) return;
+  const room = maxParticles - particles.length;
+  const n = count < room ? count : room;
+  for (let i = 0; i < n; i++) {
     const a = Math.random() * TAU;
     const sp = rand(30, 190);
     particles.push({
@@ -872,7 +1002,7 @@ function countActiveHunts() {
 
 function huntInterceptAngle(s, head) {
   const dx = player.x - head.x, dy = player.y - head.y;
-  const dist = Math.hypot(dx, dy) || 1;
+  const dist = Math.sqrt(dx*dx + dy*dy) || 1;
   const pSpd = player.baseSpeed * (player.boosting ? BOOST_MULT : 1);
   const t = Math.min(dist / (s.baseSpeed * BOOST_MULT), HUNT_LEAD_MAX) * s.arch.huntLead;
   const ix = player.x + Math.cos(player.angle) * pSpd * t;
@@ -1223,14 +1353,10 @@ function updateParticles(dt) {
   }
 }
 
-/* ---------------------------------------------------------------
-   LEADERBOARD — throttled to ~4 Hz with dirty-check
-   --------------------------------------------------------------- */
 let lbAccum = 0;
 let lbSig = '';
 const LB_INTERVAL = 0.25;
 
-/* Lazily build 3 reusable <li> rows once, then just update text. */
 function ensureLbRows() {
   if (lbRowEls.length) return;
   for (let i = 0; i < 3; i++) {
@@ -1249,16 +1375,12 @@ function updateLeaderboard(dt) {
   if (lbAccum < LB_INTERVAL) return;
   lbAccum = 0;
 
-  // Build top 3 without allocating a new array if possible
-  // (small N — a fresh sort buffer is fine, but we avoid DOM work)
   const all = [];
   if (player && player.alive) all.push(player);
   for (let i = 0; i < ais.length; i++) if (ais[i].alive) all.push(ais[i]);
   all.sort((a, b) => b.points.length - a.points.length);
 
   const count = Math.min(3, all.length);
-
-  // Build a lightweight signature to detect changes
   let sig = '';
   for (let i = 0; i < count; i++) {
     const s = all[i];
@@ -1268,7 +1390,6 @@ function updateLeaderboard(dt) {
   lbSig = sig;
 
   ensureLbRows();
-
   for (let i = 0; i < 3; i++) {
     const row = lbRowEls[i];
     if (i < count) {
@@ -1281,6 +1402,40 @@ function updateLeaderboard(dt) {
     } else {
       row.li.style.display = 'none';
     }
+  }
+}
+
+let perfAccum = 0, perfFrames = 0;
+let perfCooldown = 0, goodWindows = 0;
+
+function monitorPerf(dt) {
+  if (perfCooldown > 0) perfCooldown -= dt;
+  perfAccum += dt;
+  perfFrames++;
+
+  if (perfAccum < 1.2) return;
+
+  const fps = perfFrames / perfAccum;
+  perfAccum = 0;
+  perfFrames = 0;
+
+  if (perfCooldown > 0) return;
+
+  if (fps < 45 && qualityLevel > 0) {
+    qualityLevel--;
+    applyQuality();
+    perfCooldown = 4;
+    goodWindows = 0;
+  } else if (fps > 57 && qualityLevel < QUALITY.length - 1) {
+    goodWindows++;
+    if (goodWindows >= 3) {
+      qualityLevel++;
+      applyQuality();
+      perfCooldown = 5;
+      goodWindows = 0;
+    }
+  } else {
+    goodWindows = 0;
   }
 }
 
@@ -1309,18 +1464,12 @@ function update(dt) {
 
   enforceNearbyAI();
 
-  /* Rebuild shared snake list (cheap) */
   snakes.length = 0;
   snakes.push(player);
   for (let i = 0; i < ais.length; i++) if (ais[i].alive) snakes.push(ais[i]);
 
-  /* ---- Bounds are only needed for culling. Skip most frames. ---- */
-  for (let i = 0; i < snakes.length; i++) {
-    const s = snakes[i];
-    if (s._boundsDirty) { computeBounds(s); s._boundsDirty = false; }
-  }
+  for (let i = 0; i < snakes.length; i++) computeBounds(snakes[i]);
 
-  /* ---------- PLAYER ---------- */
   if (!gameOver) {
     mouse.wx = cam.x + (mouse.sx - W / 2) / zoom;
     mouse.wy = cam.y + (mouse.sy - H / 2) / zoom;
@@ -1352,7 +1501,6 @@ function update(dt) {
       while (boostAcc >= BOOST_SHRINK_DT && player.points.length > 26) {
         player.points.pop();
         player._pathLenDirty = true;
-        player._boundsDirty = true;
         boostAcc -= BOOST_SHRINK_DT;
       }
       if (Math.random() < 0.5) {
@@ -1366,7 +1514,6 @@ function update(dt) {
     moveSnake(player, dt);
   }
 
-  /* ---------- AI ---------- */
   for (let i = 0; i < ais.length; i++) {
     const a = ais[i];
     if (!a.alive) continue;
@@ -1378,7 +1525,6 @@ function update(dt) {
       while (a.shrinkAcc >= 0.13 && a.points.length > 26) {
         a.points.pop();
         a._pathLenDirty = true;
-        a._boundsDirty = true;
         a.shrinkAcc -= 0.13;
       }
     } else {
@@ -1386,18 +1532,10 @@ function update(dt) {
     }
   }
 
-  /* Mark bounds dirty for everyone periodically so culling stays fresh */
-  frameCount++;
-  if ((frameCount & 3) === 0) {
-    for (let i = 0; i < snakes.length; i++) snakes[i]._boundsDirty = true;
-  }
-
-  /* ---------- WORLD ---------- */
   updatePellets(dt);
   updateParticles(dt);
   checkCollisions();
 
-  /* ---------- CAMERA ---------- */
   const ctx0 = player.alive ? player.x : cam.x;
   const cty0 = player.alive ? player.y : cam.y;
   const lerp = Math.min(1, dt * 9);
@@ -1407,14 +1545,12 @@ function update(dt) {
   zoomTarget = player.boosting ? 0.87 : 1.0;
   zoom += (zoomTarget - zoom) * Math.min(1, dt * 4.5);
 
-  /* ---------- HUD ---------- */
   hudLenEl.textContent    = player.points.length;
   hudPelEl.textContent    = pelletsEaten;
   hudRivalsEl.textContent = ais.length;
   if (player.boosting) boostTagEl.classList.add('on');
   else boostTagEl.classList.remove('on');
 
-  /* ---------- LEADERBOARD ---------- */
   updateLeaderboard(dt);
 }
 
@@ -1456,29 +1592,31 @@ function drawPellets() {
   const y0 = cam.y - halfH, y1 = cam.y + halfH;
 
   const px = player.x, py = player.y;
-  const glowRange2 = 900 * 900;   // only draw the soft outer halo for near pellets
+  const useHalo = haloRange2 > 0;
 
   for (let i = 0; i < pellets.length; i++) {
     const p = pellets[i];
     if (p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1) continue;
 
     const pulse = 0.78 + 0.22 * Math.sin(p.phase);
-    const dxp = p.x - px, dyp = p.y - py;
+    const sprite = getPelletSprite(p.hue);
+    const bodyR = p.big ? 5.2 : 3.6;
+    const scale = (bodyR * pulse) / PSPR_BODY_R;
+    const drawSize = PSPR_SIZE * scale;
+    const half = drawSize * 0.5;
 
-    if (dxp * dxp + dyp * dyp < glowRange2) {
-      ctx.globalAlpha = 0.16 * pulse;
-      ctx.fillStyle = `hsl(${p.hue},100%,60%)`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 3.4, 0, TAU);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+    if (useHalo) {
+      const dxp = p.x - px, dyp = p.y - py;
+      if (dxp * dxp + dyp * dyp < haloRange2) {
+        ctx.drawImage(sprite, p.x - half, p.y - half, drawSize, drawSize);
+        continue;
+      }
     }
 
     ctx.fillStyle = `hsl(${p.hue},100%,${p.big ? 76 : 70}%)`;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r * pulse, 0, TAU);
     ctx.fill();
-
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r * 0.42 * pulse, 0, TAU);
@@ -1486,9 +1624,6 @@ function drawPellets() {
   }
 }
 
-/* ---------------------------------------------------------------------
-   Pattern overlays  —  identical look, no shadow blur
-   --------------------------------------------------------------------- */
 function drawPattern(s, totalLen) {
   const skin = s.skin;
   const type = skin.pattern;
@@ -1577,14 +1712,14 @@ function drawPattern(s, totalLen) {
         break;
       }
       case 'dot': {
-        const px = -Math.sin(ang), py = Math.cos(ang);
+        const px2 = -Math.sin(ang), py2 = Math.cos(ang);
         const off = r * 0.45;
         ctx.fillStyle = col;
         ctx.beginPath();
-        ctx.arc(x + px * off, y + py * off, r * 0.24, 0, TAU);
+        ctx.arc(x + px2 * off, y + py2 * off, r * 0.24, 0, TAU);
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(x - px * off, y - py * off, r * 0.24, 0, TAU);
+        ctx.arc(x - px2 * off, y - py2 * off, r * 0.24, 0, TAU);
         ctx.fill();
         break;
       }
@@ -1673,10 +1808,6 @@ function drawPattern(s, totalLen) {
   });
 }
 
-/* ---------------------------------------------------------------------
-   drawSnake  —  glow is now built from layered translucent strokes
-   instead of canvas shadowBlur, which is ~10-30x cheaper on long paths.
-   --------------------------------------------------------------------- */
 function drawSnake(s) {
   const pts = s.points;
   const n = pts.length;
@@ -1694,36 +1825,45 @@ function drawSnake(s) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  /* Build the body path once, reuse it for every stroke pass */
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
 
-  /* --- layered fake-glow (no shadowBlur) --- */
-  ctx.strokeStyle = skin.glow;
-  ctx.globalAlpha = 0.10;
-  ctx.lineWidth = r * 5.0;
-  ctx.stroke();
-  ctx.globalAlpha = 0.20;
-  ctx.lineWidth = r * 3.6;
-  ctx.stroke();
-  ctx.globalAlpha = 0.30;
-  ctx.lineWidth = r * 2.6;
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-
-  /* --- GOLD AURA for Israel (only one snake has it — safe to shadow) --- */
-  if (skin.aura === 'gold') {
-    const pulse = 0.85 + 0.15 * Math.sin(gameTime * 2.8);
-    ctx.shadowBlur = 45 * pulse;
-    ctx.shadowColor = '#ffd700';
-    ctx.strokeStyle = 'rgba(255,215,60,0.45)';
-    ctx.lineWidth = r * 2.2;
+  if (glowLayers > 0) {
+    ctx.strokeStyle = skin.glow;
+    ctx.globalAlpha = 0.07;
+    ctx.lineWidth = r * 5.5;
     ctx.stroke();
-    ctx.shadowBlur = 0;
+    if (glowLayers >= 2) {
+      ctx.globalAlpha = 0.13;
+      ctx.lineWidth = r * 4.0;
+      ctx.stroke();
+    }
+    if (glowLayers >= 3) {
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = r * 2.9;
+      ctx.stroke();
+    }
+    if (glowLayers >= 4) {
+      ctx.globalAlpha = 0.40;
+      ctx.lineWidth = r * 2.1;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   }
 
-  /* --- hunt aura (cheap translucent strokes) --- */
+  if (skin.aura === 'gold' && glowLayers > 0) {
+    const pulse = 0.85 + 0.15 * Math.sin(gameTime * 2.8);
+    ctx.strokeStyle = '#ffd700';
+    ctx.globalAlpha = 0.18 * pulse;
+    ctx.lineWidth = r * 3.6;
+    ctx.stroke();
+    ctx.globalAlpha = 0.30 * pulse;
+    ctx.lineWidth = r * 2.4;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
   if (s.huntT > 0) {
     const p = 0.65 + 0.35 * Math.sin(gameTime * 16);
     ctx.strokeStyle = `rgba(255,60,90,${0.20 + 0.18 * p})`;
@@ -1734,7 +1874,6 @@ function drawSnake(s) {
     ctx.stroke();
   }
 
-  /* --- body gradient --- */
   const hx = pts[0].x, hy = pts[0].y;
   const tx = pts[n - 1].x, ty = pts[n - 1].y;
   const ddx = tx - hx, ddy = ty - hy;
@@ -1750,7 +1889,6 @@ function drawSnake(s) {
   ctx.lineWidth = r * 1.85;
   ctx.stroke();
 
-  /* --- flag stripes (Israel skin) --- */
   if (skin.stripe) {
     const off = r * skin.stripe.offset;
     const w   = r * skin.stripe.width;
@@ -1758,11 +1896,11 @@ function drawSnake(s) {
     strokeOffsetPath(pts,  off, skin.stripe.color, w);
   }
 
-  /* --- pattern overlay --- */
-  if (s._pathLenDirty) { s._pathLen = pathLength(pts); s._pathLenDirty = false; }
-  drawPattern(s, s._pathLen);
+  if (qualityLevel > 0) {
+    if (s._pathLenDirty) { s._pathLen = pathLength(pts); s._pathLenDirty = false; }
+    drawPattern(s, s._pathLen);
+  }
 
-  /* --- bright core line --- */
   ctx.strokeStyle = skin.core;
   ctx.lineWidth = r * skin.coreWidth;
   ctx.beginPath();
@@ -1770,16 +1908,22 @@ function drawSnake(s) {
   for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
 
-  /* --- head (small shadow is fine, it's just a circle) --- */
-  ctx.shadowBlur = 18;
-  ctx.shadowColor = skin.headGlow;
+  ctx.fillStyle = skin.headGlow;
+  ctx.globalAlpha = 0.14;
+  ctx.beginPath();
+  ctx.arc(hx, hy, r * 2.4, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 0.26;
+  ctx.beginPath();
+  ctx.arc(hx, hy, r * 1.7, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
   ctx.fillStyle = skin.head;
   ctx.beginPath();
   ctx.arc(hx, hy, r * 1.28, 0, TAU);
   ctx.fill();
-  ctx.shadowBlur = 0;
 
-  /* --- eyes --- */
   const ex = Math.cos(s.angle), ey = Math.sin(s.angle);
   const px = -ey, py = ex;
   const ef = r * 0.42, es = r * 0.50;
@@ -1795,7 +1939,6 @@ function drawSnake(s) {
   ctx.beginPath(); ctx.arc(e2x - r * 0.07, e2y - r * 0.07, r * 0.08, 0, TAU); ctx.fill();
 }
 
-/* Batch name rendering: set the font ONCE per group (bots, then player). */
 function drawNames() {
   const halfW = W / (2 * zoom) + 40;
   const halfH = H / (2 * zoom) + 40;
@@ -1809,7 +1952,6 @@ function drawNames() {
   const fs = (12 / zoom);
   const strokeW = 3.5 / zoom;
 
-  /* --- bots --- */
   ctx.font = '600 ' + fs + 'px "Courier New", monospace';
   ctx.lineWidth = strokeW;
   ctx.strokeStyle = 'rgba(0,0,0,0.85)';
@@ -1825,7 +1967,6 @@ function drawNames() {
     ctx.fillText(s.name, h.x, y);
   }
 
-  /* --- player --- */
   if (player && player.alive) {
     const h = player.points[0];
     if (h.x >= x0 && h.x <= x1 && h.y >= y0 && h.y <= y1) {
@@ -1895,8 +2036,6 @@ function render() {
 /* =====================================================================
    GAME FLOW
    ===================================================================== */
-let frameCount = 0;
-
 function initGame() {
   cam.x = 0; cam.y = 0;
   zoom = 1; zoomTarget = 1;
@@ -1933,9 +2072,15 @@ function initGame() {
   pauseEl.classList.remove('show');
   boostTagEl.classList.remove('on');
 
-  /* reset leaderboard cache so it repaints on start */
   lbSig = '';
   lbAccum = LB_INTERVAL;
+
+  perfAccum = 0;
+  perfFrames = 0;
+  perfCooldown = 2.5;
+  goodWindows = 0;
+
+  if (fpsVisible) resetFpsStats();
 }
 
 function startGame() {
@@ -2035,6 +2180,13 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  /* ---------- DEBUG: toggle FPS overlay with 8 ---------- */
+  if ((e.code === 'Digit8' || e.code === 'Numpad8') && !isTyping) {
+    e.preventDefault();
+    toggleFps();
+    return;
+  }
+
   if (e.code === 'KeyS' && gameState === 'menu' && !isTyping) {
     unlockIsrael();
     return;
@@ -2080,7 +2232,6 @@ window.addEventListener('touchmove', (e) => {
   if (t) { mouse.sx = t.clientX; mouse.sy = t.clientY; }
 }, { passive: true });
 
-/* ---------- NAME INPUT ---------- */
 function commitPlayerName() {
   const v = nameInputEl.value.trim();
   playerName = v ? v.slice(0, 16) : 'YOU';
@@ -2099,7 +2250,6 @@ nameInputEl.addEventListener('keydown', (e) => {
   }
 });
 
-/* ---------- BUTTONS ---------- */
 document.getElementById('playBtn').addEventListener('click', () => {
   commitPlayerName();
   startGame();
@@ -2144,6 +2294,10 @@ function loop(now) {
   if (dt > 0.05) dt = 0.05;
   if (dt < 0) dt = 0;
 
+  trackFps(dt);
+
+  if (gameState === 'playing') monitorPerf(dt);
+
   update(dt);
   render();
 
@@ -2154,6 +2308,12 @@ function loop(now) {
    BOOT
    ===================================================================== */
 buildSkinMenu();
+
+(function warmPelletSprites() {
+  const hues = [48, 175, 300, 200, 110];
+  for (let i = 0; i < hues.length; i++) getPelletSprite(hues[i]);
+})();
+
 initGame();
 gameState = 'menu';
 requestAnimationFrame(loop);
